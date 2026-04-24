@@ -10,11 +10,14 @@ export const TICKET_ERRORS = {
 export type TicketErrorCode = (typeof TICKET_ERRORS)[keyof typeof TICKET_ERRORS];
 
 export const TICKETS_SCREEN_TEXT = {
-  TITLE: 'Tickets CRUD (In-Memory)',
-  CREATE_BUTTON: 'Create Ticket',
-  UPDATE_BUTTON: 'Update Ticket',
-  CANCEL_BUTTON: 'Cancel Edit',
-  EDIT_BUTTON: 'Edit',
-  DELETE_BUTTON: 'Delete',
-  GO_USERS: 'Go to Users',
+  TITLE: 'Mis Tiquetes',
+  SUBTITLE: 'Administra tus viajes y reservaciones',
+  CREATE_BUTTON: 'Nuevo tiquete',
+  UPDATE_BUTTON: 'Actualizar',
+  CANCEL_BUTTON: 'Cancelar',
+  EDIT_BUTTON: 'Editar',
+  DELETE_BUTTON: 'Eliminar',
+  EMPTY_TITLE: 'No tienes tiquetes todavía',
+  EMPTY_SUBTITLE: 'Cuando crees o cargues tus tiquetes, aparecerán aquí.',
+  LOADING: 'Cargando tiquetes...',
 } as const;

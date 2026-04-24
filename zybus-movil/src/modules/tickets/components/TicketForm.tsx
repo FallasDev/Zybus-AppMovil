@@ -1,204 +1,170 @@
-import { useEffect, useState, type ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import type { User } from '../../users';
+import { colors } from '../../../shared/theme/colors';
 import { TICKETS_SCREEN_TEXT } from '../constants/tickets.constants';
-import type { Ticket, TicketFormData } from '../models/ticket.model';
+import type { TicketFormData } from '../models/ticket.model';
+import type { User } from '../../users';
 
 interface TicketFormProps {
-  selectedTicket: Ticket | null;
+  formData: TicketFormData;
   users: User[];
   isLoading: boolean;
-  onCreate: (payload: TicketFormData) => Promise<boolean>;
-  onUpdate: (ticketId: string, payload: TicketFormData) => Promise<boolean>;
-  onCancelEdit: () => void;
+  submitLabel: string;
+  onChange: (field: keyof TicketFormData, value: string) => void;
+  onSubmit: () => void;
+  onCancel: () => void;
 }
 
-export const TicketForm = ({
-  selectedTicket,
+export function TicketForm({
+  formData,
   users,
   isLoading,
-  onCreate,
-  onUpdate,
-  onCancelEdit,
-}: TicketFormProps): ReactElement => {
-  const [title, setTitle] = useState('');
-  const [route, setRoute] = useState('');
-  const [seatNumber, setSeatNumber] = useState('');
-  const [ownerUserId, setOwnerUserId] = useState('');
-
-  useEffect(() => {
-    if (selectedTicket) {
-      setTitle(selectedTicket.title);
-      setRoute(selectedTicket.route);
-      setSeatNumber(selectedTicket.seatNumber);
-      setOwnerUserId(selectedTicket.ownerUserId);
-      return;
-    }
-
-    setTitle('');
-    setRoute('');
-    setSeatNumber('');
-    setOwnerUserId(users[0]?.id || '');
-  }, [selectedTicket, users]);
-
-  const handleSubmit = async (): Promise<void> => {
-    const payload: TicketFormData = { title, route, seatNumber, ownerUserId };
-
-    if (selectedTicket) {
-      const updated = await onUpdate(selectedTicket.id, payload);
-      if (updated) {
-        onCancelEdit();
-      }
-      return;
-    }
-
-    const created = await onCreate(payload);
-    if (created) {
-      setTitle('');
-      setRoute('');
-      setSeatNumber('');
-    }
-  };
-
+  submitLabel,
+  onChange,
+  onSubmit,
+  onCancel,
+}: TicketFormProps): ReactElement {
   return (
-    <View style={styles.card}>
-      <Text style={styles.formTitle}>{selectedTicket ? 'Edit Ticket' : 'New Ticket'}</Text>
-
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <Text style={styles.label}>Título</Text>
       <TextInput
+        value={formData.title}
+        onChangeText={(value) => onChange('title', value)}
+        placeholder="Ej: Viaje a Cartago"
+        placeholderTextColor="#a0a0a0"
         style={styles.input}
-        placeholder="Ticket title"
-        value={title}
-        onChangeText={setTitle}
         editable={!isLoading}
       />
 
+      <Text style={styles.label}>Ruta</Text>
       <TextInput
+        value={formData.route}
+        onChangeText={(value) => onChange('route', value)}
+        placeholder="Ej: San José → Cartago"
+        placeholderTextColor="#a0a0a0"
         style={styles.input}
-        placeholder="Route (e.g. San Jose -> Cartago)"
-        value={route}
-        onChangeText={setRoute}
         editable={!isLoading}
       />
 
+      <Text style={styles.label}>Asiento</Text>
       <TextInput
+        value={formData.seatNumber}
+        onChangeText={(value) => onChange('seatNumber', value)}
+        placeholder="Ej: A1"
+        placeholderTextColor="#a0a0a0"
         style={styles.input}
-        placeholder="Seat number"
-        value={seatNumber}
-        onChangeText={setSeatNumber}
         editable={!isLoading}
       />
 
-      <Text style={styles.ownerLabel}>Ticket owner</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.ownersRow}>
+      <Text style={styles.label}>Usuario asignado</Text>
+      <View style={styles.usersWrap}>
         {users.map((user) => {
-          const isSelected = user.id === ownerUserId;
+          const isSelected = formData.ownerUserId === user.id;
+
           return (
             <Pressable
               key={user.id}
-              style={[styles.ownerButton, isSelected ? styles.ownerButtonActive : null]}
-              onPress={() => setOwnerUserId(user.id)}
+              style={[styles.userChip, isSelected && styles.userChipSelected]}
+              onPress={() => onChange('ownerUserId', user.id)}
               disabled={isLoading}
             >
-              <Text style={[styles.ownerButtonText, isSelected ? styles.ownerButtonTextActive : null]}>
+              <Text style={[styles.userChipText, isSelected && styles.userChipTextSelected]}>
                 {user.name}
               </Text>
             </Pressable>
           );
         })}
-      </ScrollView>
+      </View>
 
-      <View style={styles.actionsRow}>
-        <Pressable style={styles.primaryButton} onPress={handleSubmit} disabled={isLoading}>
-          <Text style={styles.primaryButtonText}>
-            {selectedTicket ? TICKETS_SCREEN_TEXT.UPDATE_BUTTON : TICKETS_SCREEN_TEXT.CREATE_BUTTON}
-          </Text>
+      <View style={styles.actions}>
+        <Pressable
+          style={[styles.cancelButton, isLoading && styles.disabledButton]}
+          onPress={onCancel}
+          disabled={isLoading}
+        >
+          <Text style={styles.cancelButtonText}>{TICKETS_SCREEN_TEXT.CANCEL_BUTTON}</Text>
         </Pressable>
 
-        {selectedTicket ? (
-          <Pressable style={styles.secondaryButton} onPress={onCancelEdit} disabled={isLoading}>
-            <Text style={styles.secondaryButtonText}>{TICKETS_SCREEN_TEXT.CANCEL_BUTTON}</Text>
-          </Pressable>
-        ) : null}
+        <Pressable
+          style={[styles.submitButton, isLoading && styles.disabledButton]}
+          onPress={onSubmit}
+          disabled={isLoading}
+        >
+          <Text style={styles.submitButtonText}>{submitLabel}</Text>
+        </Pressable>
       </View>
-    </View>
+    </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 16,
-    gap: 10,
-    borderWidth: 1,
-    borderColor: '#dce1ea',
-  },
-  formTitle: {
-    fontSize: 18,
+  label: {
+    fontSize: 15,
     fontWeight: '700',
-    color: '#1d2939',
+    color: colors.black,
+    marginBottom: 8,
+    marginTop: 8,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#cfd6e4',
+    height: 52,
+    backgroundColor: '#f5f5f5',
     borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 14,
     fontSize: 15,
-    color: '#0f172a',
-    backgroundColor: '#f8fafc',
+    color: colors.black,
   },
-  ownerLabel: {
-    marginTop: 6,
-    color: '#334155',
-    fontWeight: '600',
-  },
-  ownersRow: {
-    gap: 8,
-    paddingVertical: 4,
-  },
-  ownerButton: {
-    backgroundColor: '#e2e8f0',
-    borderRadius: 999,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  ownerButtonActive: {
-    backgroundColor: '#0b63f6',
-  },
-  ownerButtonText: {
-    color: '#334155',
-    fontWeight: '600',
-  },
-  ownerButtonTextActive: {
-    color: '#ffffff',
-  },
-  actionsRow: {
+  usersWrap: {
     flexDirection: 'row',
-    gap: 8,
+    flexWrap: 'wrap',
+    gap: 10,
     marginTop: 4,
+    marginBottom: 8,
   },
-  primaryButton: {
+  userChip: {
+    backgroundColor: '#eef2f6',
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  userChipSelected: {
+    backgroundColor: colors.brandBlue,
+  },
+  userChipText: {
+    color: colors.black,
+    fontWeight: '600',
+  },
+  userChipTextSelected: {
+    color: colors.white,
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 22,
+    marginBottom: 12,
+  },
+  cancelButton: {
     flex: 1,
-    backgroundColor: '#0b63f6',
-    paddingVertical: 12,
-    borderRadius: 10,
+    backgroundColor: '#f1f3f5',
+    borderRadius: 12,
+    paddingVertical: 13,
     alignItems: 'center',
   },
-  primaryButtonText: {
-    color: '#ffffff',
+  cancelButtonText: {
+    color: colors.gray,
     fontWeight: '700',
   },
-  secondaryButton: {
+  submitButton: {
     flex: 1,
-    backgroundColor: '#e6ebf5',
-    paddingVertical: 12,
-    borderRadius: 10,
+    backgroundColor: colors.brandBlue,
+    borderRadius: 12,
+    paddingVertical: 13,
     alignItems: 'center',
   },
-  secondaryButtonText: {
-    color: '#334155',
-    fontWeight: '600',
+  submitButtonText: {
+    color: colors.white,
+    fontWeight: '700',
+  },
+  disabledButton: {
+    opacity: 0.6,
   },
 });
