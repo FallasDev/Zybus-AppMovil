@@ -1,27 +1,28 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors } from '../../../shared/theme/colors';
+import { colors } from '../theme/colors';
 
-interface TicketModalProps {
+interface AppModalProps {
   visible: boolean;
   title: string;
   onClose: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-export function TicketModal({
+export function AppModal({
   visible,
   title,
   onClose,
   children,
-}: TicketModalProps): ReactElement {
+}: AppModalProps): ReactElement {
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.modalCard}>
           <View style={styles.header}>
             <Text style={styles.title}>{title}</Text>
-            <Pressable onPress={onClose} style={styles.closeButton}>
+
+            <Pressable style={styles.closeButton} onPress={onClose}>
               <Text style={styles.closeText}>✕</Text>
             </Pressable>
           </View>

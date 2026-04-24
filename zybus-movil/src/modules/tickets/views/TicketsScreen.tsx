@@ -2,9 +2,9 @@ import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../../../shared/theme/colors';
+import { AppModal, LoadingState } from '../../../shared/components';
 import { TicketList } from '../components/TicketList';
 import { TicketForm } from '../components/TicketForm';
-import { TicketModal } from '../components/TicketModal';
 import { TICKETS_SCREEN_TEXT } from '../constants/tickets.constants';
 import type { Ticket, TicketFormData } from '../models/ticket.model';
 import { useTicketsCrud } from '../hooks/useTicketsCrud';
@@ -113,11 +113,7 @@ export function TicketsScreen(): ReactElement {
         </Pressable>
       </View>
 
-      {isLoading ? (
-        <View style={styles.feedbackCard}>
-          <Text style={styles.feedbackText}>{TICKETS_SCREEN_TEXT.LOADING}</Text>
-        </View>
-      ) : null}
+      {isLoading ? <LoadingState message={TICKETS_SCREEN_TEXT.LOADING} /> : null}
 
       {error ? (
         <View style={[styles.feedbackCard, styles.errorCard]}>
@@ -138,7 +134,7 @@ export function TicketsScreen(): ReactElement {
         header={header}
       />
 
-      <TicketModal
+      <AppModal
         visible={isModalVisible}
         title={isEditing ? 'Editar tiquete' : 'Nuevo tiquete'}
         onClose={closeModal}
@@ -158,7 +154,7 @@ export function TicketsScreen(): ReactElement {
           }}
           onCancel={closeModal}
         />
-      </TicketModal>
+      </AppModal>
     </View>
   );
 }
@@ -222,11 +218,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
-  },
-  feedbackText: {
-    color: colors.gray,
-    textAlign: 'center',
-    fontWeight: '600',
   },
   errorCard: {
     backgroundColor: '#fff1f1',

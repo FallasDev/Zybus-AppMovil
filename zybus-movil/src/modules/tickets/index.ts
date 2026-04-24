@@ -4,5 +4,4 @@ export { useTicketsCrud } from './hooks/useTicketsCrud';
 export { ticketsService } from './services/tickets.service';
 export { TicketList } from './components/TicketList';
 export { TicketForm } from './components/TicketForm';
-export { TicketModal } from './components/TicketModal';
 export type { Ticket, TicketFormData } from './models/ticket.model';

@@ -1,143 +1,116 @@
-import { useEffect, useState, type ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { colors } from '../../../shared/theme/colors';
 import { USERS_SCREEN_TEXT } from '../constants/users.constants';
-import type { User, UserFormData } from '../models/user.model';
+import type { UserFormData } from '../models/user.model';
 
 interface UserFormProps {
-  selectedUser: User | null;
+  formData: UserFormData;
   isLoading: boolean;
-  onCreate: (payload: UserFormData) => Promise<boolean>;
-  onUpdate: (userId: string, payload: UserFormData) => Promise<boolean>;
-  onCancelEdit: () => void;
+  submitLabel: string;
+  onChange: (field: keyof UserFormData, value: string) => void;
+  onSubmit: () => void;
+  onCancel: () => void;
 }
 
-export const UserForm = ({
-  selectedUser,
+export function UserForm({
+  formData,
   isLoading,
-  onCreate,
-  onUpdate,
-  onCancelEdit,
-}: UserFormProps): ReactElement => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-
-  useEffect(() => {
-    if (selectedUser) {
-      setName(selectedUser.name);
-      setEmail(selectedUser.email);
-      return;
-    }
-
-    setName('');
-    setEmail('');
-  }, [selectedUser]);
-
-  const handleSubmit = async () => {
-    const payload = { name, email };
-
-    if (selectedUser) {
-      const updated = await onUpdate(selectedUser.id, payload);
-      if (updated) {
-        onCancelEdit();
-      }
-      return;
-    }
-
-    const created = await onCreate(payload);
-    if (created) {
-      setName('');
-      setEmail('');
-    }
-  };
-
+  submitLabel,
+  onChange,
+  onSubmit,
+  onCancel,
+}: UserFormProps): ReactElement {
   return (
-    <View style={styles.card}>
-      <Text style={styles.formTitle}>{selectedUser ? 'Edit User' : 'New User'}</Text>
-
+    <View>
+      <Text style={styles.label}>Nombre completo</Text>
       <TextInput
         style={styles.input}
-        placeholder="Full name"
-        value={name}
-        onChangeText={setName}
+        placeholder="Nombre completo"
+        placeholderTextColor="#a0a0a0"
+        value={formData.name}
+        onChangeText={(value) => onChange('name', value)}
         editable={!isLoading}
       />
 
+      <Text style={styles.label}>Correo</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder="Correo electrónico"
+        placeholderTextColor="#a0a0a0"
         keyboardType="email-address"
         autoCapitalize="none"
-        value={email}
-        onChangeText={setEmail}
+        value={formData.email}
+        onChangeText={(value) => onChange('email', value)}
         editable={!isLoading}
       />
 
       <View style={styles.actionsRow}>
-        <Pressable style={styles.primaryButton} onPress={handleSubmit} disabled={isLoading}>
-          <Text style={styles.primaryButtonText}>
-            {selectedUser ? USERS_SCREEN_TEXT.UPDATE_BUTTON : USERS_SCREEN_TEXT.CREATE_BUTTON}
-          </Text>
+        <Pressable
+          style={[styles.primaryButton, isLoading && styles.disabledButton]}
+          onPress={onSubmit}
+          disabled={isLoading}
+        >
+          <Text style={styles.primaryButtonText}>{submitLabel}</Text>
         </Pressable>
 
-        {selectedUser ? (
-          <Pressable style={styles.secondaryButton} onPress={onCancelEdit} disabled={isLoading}>
-            <Text style={styles.secondaryButtonText}>{USERS_SCREEN_TEXT.CANCEL_BUTTON}</Text>
-          </Pressable>
-        ) : null}
+        <Pressable
+          style={[styles.secondaryButton, isLoading && styles.disabledButton]}
+          onPress={onCancel}
+          disabled={isLoading}
+        >
+          <Text style={styles.secondaryButtonText}>{USERS_SCREEN_TEXT.CANCEL_BUTTON}</Text>
+        </Pressable>
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 16,
-    gap: 10,
-    borderWidth: 1,
-    borderColor: '#dce1ea',
-  },
-  formTitle: {
-    fontSize: 18,
+  label: {
+    fontSize: 15,
     fontWeight: '700',
-    color: '#1d2939',
+    color: colors.black,
+    marginBottom: 8,
+    marginTop: 8,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#cfd6e4',
+    height: 52,
+    backgroundColor: '#f5f5f5',
     borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 14,
     fontSize: 15,
-    color: '#0f172a',
-    backgroundColor: '#f8fafc',
+    color: colors.black,
   },
   actionsRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 12,
+    marginTop: 22,
+    marginBottom: 12,
   },
   primaryButton: {
     flex: 1,
-    backgroundColor: '#0b63f6',
-    paddingVertical: 12,
-    borderRadius: 10,
+    backgroundColor: colors.brandBlue,
+    paddingVertical: 13,
+    borderRadius: 12,
     alignItems: 'center',
   },
   primaryButtonText: {
-    color: '#ffffff',
+    color: colors.white,
     fontWeight: '700',
   },
   secondaryButton: {
     flex: 1,
-    backgroundColor: '#e6ebf5',
-    paddingVertical: 12,
-    borderRadius: 10,
+    backgroundColor: '#f1f3f5',
+    paddingVertical: 13,
+    borderRadius: 12,
     alignItems: 'center',
   },
   secondaryButtonText: {
-    color: '#334155',
-    fontWeight: '600',
+    color: colors.gray,
+    fontWeight: '700',
+  },
+  disabledButton: {
+    opacity: 0.6,
   },
 });

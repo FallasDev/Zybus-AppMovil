@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   editButtonText: {
-    color: colors.brandBlue,
+    color: colors.black,
     fontWeight: '700',
   },
   deleteButton: {
