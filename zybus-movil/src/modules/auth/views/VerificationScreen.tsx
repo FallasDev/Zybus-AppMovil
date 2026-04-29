@@ -1,12 +1,17 @@
 import type { ReactElement } from 'react';
+import { useMemo } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { colors } from '../../../shared/theme/colors';
+import { useAppTheme } from '../../../shared/hooks/useAppTheme';
+import type { AppTheme } from '../../../shared/theme/types';
 import type { RootStackParamList } from '../../../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Verification'>;
 
 export function VerificationScreen({ navigation }: Props): ReactElement {
+  const { theme } = useAppTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -36,66 +41,68 @@ export function VerificationScreen({ navigation }: Props): ReactElement {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.white,
-    paddingHorizontal: 24,
-    paddingTop: 48,
-  },
-  backButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#f6f6f6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  backText: {
-    fontSize: 26,
-    color: colors.black,
-    marginTop: -2,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.black,
-    textAlign: 'center',
-    marginBottom: 22,
-  },
-  description: {
-    color: colors.black,
-    fontSize: 16,
-    fontWeight: '600',
-    lineHeight: 22,
-    marginBottom: 18,
-  },
-  codeRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 26,
-  },
-  codeInput: {
-    width: 62,
-    height: 52,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 6,
-    textAlign: 'center',
-    fontSize: 22,
-    color: colors.black,
-    fontWeight: '700',
-  },
-  primaryButton: {
-    height: 56,
-    backgroundColor: colors.brandBlue,
-    borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primaryButtonText: {
-    color: colors.white,
-    fontSize: 18,
-    fontWeight: '700',
-  },
-});
+function makeStyles(theme: AppTheme) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.surface,
+      paddingHorizontal: 24,
+      paddingTop: 48,
+    },
+    backButton: {
+      width: 38,
+      height: 38,
+      borderRadius: 19,
+      backgroundColor: theme.colors.surfaceAlt,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 10,
+    },
+    backText: {
+      fontSize: 26,
+      color: theme.colors.textPrimary,
+      marginTop: -2,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: theme.colors.textPrimary,
+      textAlign: 'center',
+      marginBottom: 22,
+    },
+    description: {
+      color: theme.colors.textSecondary,
+      fontSize: 16,
+      fontWeight: '600',
+      lineHeight: 22,
+      marginBottom: 18,
+    },
+    codeRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 26,
+    },
+    codeInput: {
+      width: 62,
+      height: 52,
+      backgroundColor: theme.colors.inputBackground,
+      borderRadius: 6,
+      textAlign: 'center',
+      fontSize: 22,
+      color: theme.colors.textPrimary,
+      fontWeight: '700',
+    },
+    primaryButton: {
+      height: 56,
+      backgroundColor: theme.colors.brandBlue,
+      borderRadius: 6,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    primaryButtonText: {
+      color: theme.colors.white,
+      fontSize: 18,
+      fontWeight: '700',
+    },
+  });
+}

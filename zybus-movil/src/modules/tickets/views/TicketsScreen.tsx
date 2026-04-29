@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors } from '../../../shared/theme/colors';
+import { useAppTheme } from '../../../shared/hooks/useAppTheme';
+import type { AppTheme } from '../../../shared/theme/types';
 import { AppModal, LoadingState } from '../../../shared/components';
 import { TicketList } from '../components/TicketList';
 import { TicketForm } from '../components/TicketForm';
@@ -30,6 +31,9 @@ export function TicketsScreen(): ReactElement {
     clearSelection,
     getOwnerNameById,
   } = useTicketsCrud();
+
+  const { theme } = useAppTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [formData, setFormData] = useState<TicketFormData>(initialFormData);
@@ -60,10 +64,7 @@ export function TicketsScreen(): ReactElement {
   };
 
   const handleChange = (field: keyof TicketFormData, value: string): void => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (): Promise<void> => {
@@ -101,7 +102,6 @@ export function TicketsScreen(): ReactElement {
             <Text style={styles.summaryValue}>{tickets.length}</Text>
             <Text style={styles.summaryLabel}>Total</Text>
           </View>
-
           <View style={styles.summaryBox}>
             <Text style={styles.summaryValue}>{users.length}</Text>
             <Text style={styles.summaryLabel}>Usuarios</Text>
@@ -159,72 +159,74 @@ export function TicketsScreen(): ReactElement {
   );
 }
 
-const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  headerCard: {
-    backgroundColor: colors.brandBlue,
-    borderRadius: 22,
-    padding: 20,
-    marginBottom: 18,
-  },
-  title: {
-    color: colors.white,
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  subtitle: {
-    color: '#eef2e8',
-    fontSize: 14,
-    marginBottom: 18,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 18,
-  },
-  summaryBox: {
-    flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.16)',
-    borderRadius: 16,
-    padding: 14,
-  },
-  summaryValue: {
-    color: colors.white,
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  summaryLabel: {
-    color: '#eef2e8',
-    fontSize: 13,
-    marginTop: 4,
-  },
-  createButton: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  createButtonText: {
-    color: colors.brandBlue,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  feedbackCard: {
-    backgroundColor: colors.white,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-  },
-  errorCard: {
-    backgroundColor: '#fff1f1',
-  },
-  errorText: {
-    color: '#b42318',
-    textAlign: 'center',
-    fontWeight: '700',
-  },
-});
+function makeStyles(theme: AppTheme) {
+  return StyleSheet.create({
+    wrapper: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    headerCard: {
+      backgroundColor: theme.colors.brandBlue,
+      borderRadius: 22,
+      padding: 20,
+      marginBottom: 18,
+    },
+    title: {
+      color: theme.colors.white,
+      fontSize: 24,
+      fontWeight: '700',
+      marginBottom: 4,
+    },
+    subtitle: {
+      color: theme.colors.white,
+      fontSize: 14,
+      marginBottom: 18,
+    },
+    summaryRow: {
+      flexDirection: 'row',
+      gap: 12,
+      marginBottom: 18,
+    },
+    summaryBox: {
+      flex: 1,
+      backgroundColor: 'rgba(255,255,255,0.16)',
+      borderRadius: 16,
+      padding: 14,
+    },
+    summaryValue: {
+      color: theme.colors.white,
+      fontSize: 20,
+      fontWeight: '700',
+    },
+    summaryLabel: {
+      color: theme.colors.white,
+      fontSize: 13,
+      marginTop: 4,
+    },
+    createButton: {
+      backgroundColor: theme.colors.white,
+      borderRadius: 12,
+      paddingVertical: 14,
+      alignItems: 'center',
+    },
+    createButtonText: {
+      color: theme.colors.brandBlue,
+      fontSize: 16,
+      fontWeight: '700',
+    },
+    feedbackCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 16,
+    },
+    errorCard: {
+      backgroundColor: theme.colors.errorSurface,
+    },
+    errorText: {
+      color: theme.colors.error,
+      textAlign: 'center',
+      fontWeight: '700',
+    },
+  });
+}
