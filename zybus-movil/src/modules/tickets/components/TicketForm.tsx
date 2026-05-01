@@ -1,6 +1,8 @@
 import type { ReactElement } from 'react';
+import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { colors } from '../../../shared/theme/colors';
+import { useAppTheme } from '../../../shared/hooks/useAppTheme';
+import type { AppTheme } from '../../../shared/theme/types';
 import { TICKETS_SCREEN_TEXT } from '../constants/tickets.constants';
 import type { TicketFormData } from '../models/ticket.model';
 import type { User } from '../../users';
@@ -24,6 +26,9 @@ export function TicketForm({
   onSubmit,
   onCancel,
 }: TicketFormProps): ReactElement {
+  const { theme } = useAppTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <Text style={styles.label}>Título</Text>
@@ -31,7 +36,7 @@ export function TicketForm({
         value={formData.title}
         onChangeText={(value) => onChange('title', value)}
         placeholder="Ej: Viaje a Cartago"
-        placeholderTextColor="#a0a0a0"
+        placeholderTextColor={theme.colors.textSecondary}
         style={styles.input}
         editable={!isLoading}
       />
@@ -41,7 +46,7 @@ export function TicketForm({
         value={formData.route}
         onChangeText={(value) => onChange('route', value)}
         placeholder="Ej: San José → Cartago"
-        placeholderTextColor="#a0a0a0"
+        placeholderTextColor={theme.colors.textSecondary}
         style={styles.input}
         editable={!isLoading}
       />
@@ -51,7 +56,7 @@ export function TicketForm({
         value={formData.seatNumber}
         onChangeText={(value) => onChange('seatNumber', value)}
         placeholder="Ej: A1"
-        placeholderTextColor="#a0a0a0"
+        placeholderTextColor={theme.colors.textSecondary}
         style={styles.input}
         editable={!isLoading}
       />
@@ -60,7 +65,6 @@ export function TicketForm({
       <View style={styles.usersWrap}>
         {users.map((user) => {
           const isSelected = formData.ownerUserId === user.id;
-
           return (
             <Pressable
               key={user.id}
@@ -97,74 +101,76 @@ export function TicketForm({
   );
 }
 
-const styles = StyleSheet.create({
-  label: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.black,
-    marginBottom: 8,
-    marginTop: 8,
-  },
-  input: {
-    height: 52,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    fontSize: 15,
-    color: colors.black,
-  },
-  usersWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginTop: 4,
-    marginBottom: 8,
-  },
-  userChip: {
-    backgroundColor: '#eef2f6',
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  userChipSelected: {
-    backgroundColor: colors.brandBlue,
-  },
-  userChipText: {
-    color: colors.black,
-    fontWeight: '600',
-  },
-  userChipTextSelected: {
-    color: colors.white,
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 22,
-    marginBottom: 12,
-  },
-  cancelButton: {
-    flex: 1,
-    backgroundColor: '#f1f3f5',
-    borderRadius: 12,
-    paddingVertical: 13,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    color: colors.gray,
-    fontWeight: '700',
-  },
-  submitButton: {
-    flex: 1,
-    backgroundColor: colors.brandBlue,
-    borderRadius: 12,
-    paddingVertical: 13,
-    alignItems: 'center',
-  },
-  submitButtonText: {
-    color: colors.white,
-    fontWeight: '700',
-  },
-  disabledButton: {
-    opacity: 0.6,
-  },
-});
+function makeStyles(theme: AppTheme) {
+  return StyleSheet.create({
+    label: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: theme.colors.brandBlue,
+      marginBottom: 8,
+      marginTop: 8,
+    },
+    input: {
+      height: 52,
+      backgroundColor: theme.colors.inputBackground,
+      borderRadius: 10,
+      paddingHorizontal: 14,
+      fontSize: 15,
+      color: theme.colors.textPrimary,
+    },
+    usersWrap: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 10,
+      marginTop: 4,
+      marginBottom: 8,
+    },
+    userChip: {
+      backgroundColor: theme.colors.surfaceAlt,
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+    },
+    userChipSelected: {
+      backgroundColor: theme.colors.brandBlue,
+    },
+    userChipText: {
+      color: theme.colors.textPrimary,
+      fontWeight: '600',
+    },
+    userChipTextSelected: {
+      color: theme.colors.white,
+    },
+    actions: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 22,
+      marginBottom: 12,
+    },
+    cancelButton: {
+      flex: 1,
+      backgroundColor: theme.colors.surfaceAlt,
+      borderRadius: 12,
+      paddingVertical: 13,
+      alignItems: 'center',
+    },
+    cancelButtonText: {
+      color: theme.colors.textSecondary,
+      fontWeight: '700',
+    },
+    submitButton: {
+      flex: 1,
+      backgroundColor: theme.colors.brandYellow,
+      borderRadius: 12,
+      paddingVertical: 13,
+      alignItems: 'center',
+    },
+    submitButtonText: {
+      color: theme.colors.white,
+      fontWeight: '700',
+    },
+    disabledButton: {
+      opacity: 0.6,
+    },
+  });
+}

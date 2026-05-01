@@ -1,8 +1,10 @@
 import type { ReactElement } from 'react';
+import { useMemo } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors } from '../../../shared/theme/colors';
+import { useAppTheme } from '../../../shared/hooks/useAppTheme';
+import type { AppTheme } from '../../../shared/theme/types';
 import { images } from '../../../shared/assets/images';
 import type { RootStackParamList } from '../../../navigation/types';
 import { nearbyStops } from '../constants/home.mock';
@@ -12,6 +14,8 @@ type HomeNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export function HomeScreen(): ReactElement {
   const navigation = useNavigation<HomeNavigationProp>();
+  const { theme } = useAppTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -45,7 +49,7 @@ export function HomeScreen(): ReactElement {
         <TextInput
           editable={false}
           placeholder="Añadir tu destino"
-          placeholderTextColor="#9c9c9c"
+          placeholderTextColor={theme.colors.textSecondary}
           style={styles.searchInput}
         />
       </TouchableOpacity>
@@ -70,96 +74,98 @@ export function HomeScreen(): ReactElement {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: 20,
-    paddingTop: 52,
-    paddingBottom: 32,
-  },
-  topRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 18,
-  },
-  smallText: {
-    fontSize: 14,
-    color: colors.gray,
-    marginBottom: 4,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.black,
-  },
-  profileCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: colors.brandBlue,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  profileText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  mapCard: {
-    height: 240,
-    borderRadius: 18,
-    overflow: 'hidden',
-    marginBottom: 18,
-    backgroundColor: '#dfe8d8',
-    position: 'relative',
-  },
-  mapImage: {
-    width: '100%',
-    height: '100%',
-  },
-  mapOverlay: {
-    position: 'absolute',
-    left: 16,
-    bottom: 16,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  mapOverlayText: {
-    color: colors.white,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  searchWrap: {
-    marginBottom: 18,
-  },
-  searchInput: {
-    height: 54,
-    backgroundColor: colors.white,
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    fontSize: 15,
-    color: colors.black,
-  },
-  sectionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.black,
-  },
-  viewAll: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.brandBlue,
-  },
-});
+function makeStyles(theme: AppTheme) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    content: {
+      padding: 20,
+      paddingTop: 52,
+      paddingBottom: 32,
+    },
+    topRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 18,
+    },
+    smallText: {
+      fontSize: 14,
+      color: theme.colors.textSecondary,
+      marginBottom: 4,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: theme.colors.textPrimary,
+    },
+    profileCircle: {
+      width: 42,
+      height: 42,
+      borderRadius: 21,
+      backgroundColor: theme.colors.brandBlue,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    profileText: {
+      color: theme.colors.white,
+      fontSize: 16,
+      fontWeight: '700',
+    },
+    mapCard: {
+      height: 240,
+      borderRadius: 18,
+      overflow: 'hidden',
+      marginBottom: 18,
+      backgroundColor: theme.colors.surfaceAlt,
+      position: 'relative',
+    },
+    mapImage: {
+      width: '100%',
+      height: '100%',
+    },
+    mapOverlay: {
+      position: 'absolute',
+      left: 16,
+      bottom: 16,
+      backgroundColor: theme.colors.overlay,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 8,
+    },
+    mapOverlayText: {
+      color: theme.colors.white,
+      fontSize: 14,
+      fontWeight: '700',
+    },
+    searchWrap: {
+      marginBottom: 18,
+    },
+    searchInput: {
+      height: 54,
+      backgroundColor: theme.colors.surface,
+      borderRadius: 10,
+      paddingHorizontal: 16,
+      fontSize: 15,
+      color: theme.colors.textPrimary,
+    },
+    sectionRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: theme.colors.textPrimary,
+    },
+    viewAll: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.colors.brandBlue,
+    },
+  });
+}
