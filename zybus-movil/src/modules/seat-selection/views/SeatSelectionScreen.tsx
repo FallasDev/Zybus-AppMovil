@@ -1,18 +1,20 @@
 import type { ReactElement } from 'react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
-import { EmptyState, LoadingState } from '../../../shared/components';
+import { AppSuccessModal, EmptyState, LoadingState } from '../../../shared/components';
 import type { AppTheme } from '../../../shared/theme/types';
 import type { RootStackParamList } from '../../../navigation/types';
 import { useSeatSelection } from '../hooks/useSeatSelection';
 import { SeatMap } from '../components/SeatMap';
 import { SeatLegend } from '../components/SeatLegend';
 import { SeatSelectionSummary } from '../components/SeatSelectionSummary';
+import { PassengerTypeModal } from '../components/PassengerTypeModal';
 import { SEAT_SELECTION_TEXT } from '../constants/seat-selection.constants';
+import type { PassengerType, Seat, SelectedSeat } from '../models/seat-selection.model';
 
 type SeatSelectionNavProp = NativeStackNavigationProp<RootStackParamList, 'SeatSelection'>;
 type SeatSelectionRouteProp = NativeStackScreenProps<RootStackParamList, 'SeatSelection'>['route'];
@@ -23,31 +25,62 @@ export function SeatSelectionScreen(): ReactElement {
   const { theme } = useAppTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
-  const { tripId, passengers } = route.params;
-  const { seatMapData, selectedSeatIds, isLoading, error, canConfirm, toggleSeat } =
-    useSeatSelection(tripId, passengers);
+  const { tripId, passengers: initialPassengers } = route.params;
+  const {
+    seatMapData,
+    selectedSeats,
+    selectedSeatIds,
+    isLoading,
+    error,
+    canConfirm,
+    addSelectedSeat,
+    removeSelectedSeat,
+  } = useSeatSelection(tripId, 999);
 
-  const selectedIdSet = useMemo(() => new Set(selectedSeatIds), [selectedSeatIds]);
-  const selectedSeatCodes = useMemo(
-    () =>
-      seatMapData?.seats
-        .filter((s) => selectedIdSet.has(s.id))
-        .sort((a, b) => a.position - b.position)
-        .map((s) => s.seatCode) ?? [],
-    [seatMapData, selectedIdSet]
-  );
+  const [configuringSeat, setConfiguringSeat] = useState<Seat | null>(null);
+  const [pendingConfirm, setPendingConfirm] = useState<SelectedSeat | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const handleSeatPress = (seatId: string) => {
+    if (selectedSeatIds.has(seatId)) {
+      removeSelectedSeat(seatId);
+      return;
+    }
+    const seat = seatMapData?.seats.find((s) => s.id === seatId);
+    if (seat) setConfiguringSeat(seat);
+  };
+
+  const handlePassengerConfirm = (type: PassengerType, cedula?: string) => {
+    if (!configuringSeat) return;
+    const selection: SelectedSeat = {
+      seatId: configuringSeat.id,
+      seatCode: configuringSeat.seatCode,
+      passengerType: type,
+      cedula,
+    };
+    setPendingConfirm(selection);
+    setConfiguringSeat(null);
+    setShowSuccess(true);
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccess(false);
+    if (pendingConfirm) {
+      addSelectedSeat(pendingConfirm);
+      setPendingConfirm(null);
+    }
+  };
 
   const handleConfirm = () => {
     Alert.alert(
       'Asientos confirmados',
-      `Asientos seleccionados: ${selectedSeatCodes.join(', ')}. ¡Listo para continuar!`,
+      `Asientos: ${selectedSeats.map((s: SelectedSeat) => s.seatCode).join(', ')}. ¡Listo para continuar!`,
       [{ text: 'OK', onPress: () => navigation.navigate('MainTabs') }]
     );
   };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backBtn}
@@ -77,28 +110,43 @@ export function SeatSelectionScreen(): ReactElement {
         </View>
       ) : (
         <>
-          {/* Leyenda */}
+          {/* Selector de cantidad de pasajeros */}
           <SeatLegend />
-
-          {/* Mapa */}
           <View style={styles.mapWrapper}>
             <SeatMap
               seats={seatMapData.seats}
               columnsCount={seatMapData.columnsCount}
-              selectedSeatIds={selectedSeatIds}
-              onSeatPress={toggleSeat}
+              selectedSeatIds={Array.from(selectedSeatIds)}
+              onSeatPress={handleSeatPress}
             />
           </View>
-
-          {/* Footer */}
           <SeatSelectionSummary
-            selectedSeatCodes={selectedSeatCodes}
-            maxPassengers={passengers}
-            canConfirm={canConfirm}
+            selectedSeats={selectedSeats}
+            maxPassengers={selectedSeats.length}
+            canConfirm={selectedSeats.length > 0}
             onConfirm={handleConfirm}
           />
         </>
       )}
+
+      <PassengerTypeModal
+        seat={configuringSeat}
+        onConfirm={handlePassengerConfirm}
+        onCancel={() => setConfiguringSeat(null)}
+      />
+
+      <AppSuccessModal
+        visible={showSuccess}
+        title="¡Asiento reservado!"
+        message={
+          pendingConfirm
+            ? pendingConfirm.passengerType === 'adulto_mayor'
+              ? `Asiento ${pendingConfirm.seatCode} — Adulto mayor verificado`
+              : `Asiento ${pendingConfirm.seatCode} — Pasajero normal`
+            : ''
+        }
+        onClose={handleSuccessClose}
+      />
     </View>
   );
 }

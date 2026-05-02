@@ -8,6 +8,7 @@ export type RootStackParamList = {
   BusRoute: undefined;
   Users: undefined;
   Tickets: undefined;
+  TripSearch: undefined;
   SearchResults: { originStopId: string; destinationStopId: string; date: string; passengers: number };
   TripDetail: { tripId: string; passengers: number };
   SeatSelection: { tripId: string; passengers: number };

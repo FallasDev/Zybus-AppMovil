@@ -3,6 +3,9 @@ export interface TripSearchFormData {
   destinationStopId: string;
   date: string;
   passengers: number;
+  normales: number;
+  adultosMayores: number;
+  identificaciones: string[];
 }
 
 export interface TripSearchResult {

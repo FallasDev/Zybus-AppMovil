@@ -1,17 +1,19 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { seatSelectionService } from '../services/seat-selection.service';
 import { useSeatSelectionStore } from '../store/seat-selection.store';
 import { mapSeatMapFromDTO } from '../models/seat-selection.mapper';
 import { getSeatErrorMessage } from '../constants/seat-selection.constants';
-import type { SeatMapData } from '../models/seat-selection.model';
+import type { SeatMapData, SelectedSeat } from '../models/seat-selection.model';
 
 interface UseSeatSelectionResult {
   seatMapData: SeatMapData | null;
-  selectedSeatIds: string[];
+  selectedSeats: SelectedSeat[];
+  selectedSeatIds: Set<string>;
   isLoading: boolean;
   error: string | null;
   canConfirm: boolean;
-  toggleSeat: (seatId: string) => void;
+  addSelectedSeat: (seat: SelectedSeat) => void;
+  removeSelectedSeat: (seatId: string) => void;
 }
 
 export const useSeatSelection = (
@@ -20,21 +22,21 @@ export const useSeatSelection = (
 ): UseSeatSelectionResult => {
   const {
     seatMapData,
-    selectedSeatIds,
+    selectedSeats,
     isLoading,
     error,
     setSeatMapData,
-    setSelectedSeatIds,
+    setSelectedSeats,
     setIsLoading,
     setError,
   } = useSeatSelectionStore();
 
   const withRequest = useCallback(
-    async (requestFn: () => Promise<void>): Promise<boolean> => {
+    async (fn: () => Promise<void>): Promise<boolean> => {
       setIsLoading(true);
       setError(null);
       try {
-        await requestFn();
+        await fn();
         return true;
       } catch (requestError) {
         if (requestError instanceof Error) {
@@ -51,33 +53,50 @@ export const useSeatSelection = (
   );
 
   const loadSeats = useCallback(async () => {
-    setSelectedSeatIds([]);
+    setSelectedSeats([]);
     await withRequest(async () => {
       const dto = await seatSelectionService.getTripSeats(tripId);
       setSeatMapData(mapSeatMapFromDTO(dto));
     });
-  }, [tripId, setSeatMapData, setSelectedSeatIds, withRequest]);
+  }, [tripId, setSeatMapData, setSelectedSeats, withRequest]);
 
-  const toggleSeat = useCallback(
-    (seatId: string) => {
-      if (!seatMapData) return;
-      const seat = seatMapData.seats.find((s) => s.id === seatId);
-      if (!seat || seat.status === 'occupied') return;
-
-      setSelectedSeatIds((prev) => {
-        if (prev.includes(seatId)) return prev.filter((id) => id !== seatId);
+  const addSelectedSeat = useCallback(
+    (seat: SelectedSeat) => {
+      setSelectedSeats((prev) => {
+        if (prev.some((s) => s.seatId === seat.seatId)) return prev;
         if (prev.length >= maxPassengers) return prev;
-        return [...prev, seatId];
+        return [...prev, seat];
       });
     },
-    [seatMapData, maxPassengers, setSelectedSeatIds]
+    [maxPassengers, setSelectedSeats]
+  );
+
+  const removeSelectedSeat = useCallback(
+    (seatId: string) => {
+      setSelectedSeats((prev) => prev.filter((s) => s.seatId !== seatId));
+    },
+    [setSelectedSeats]
   );
 
   useEffect(() => {
     loadSeats();
   }, [loadSeats]);
 
-  const canConfirm = selectedSeatIds.length === maxPassengers;
+  const selectedSeatIds = useMemo(
+    () => new Set(selectedSeats.map((s) => s.seatId)),
+    [selectedSeats]
+  );
 
-  return { seatMapData, selectedSeatIds, isLoading, error, canConfirm, toggleSeat };
+  const canConfirm = selectedSeats.length === maxPassengers;
+
+  return {
+    seatMapData,
+    selectedSeats,
+    selectedSeatIds,
+    isLoading,
+    error,
+    canConfirm,
+    addSelectedSeat,
+    removeSelectedSeat,
+  };
 };

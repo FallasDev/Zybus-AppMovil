@@ -8,15 +8,15 @@ import {
   useMemo,
   useState,
 } from 'react';
-import type { SeatMapData } from '../models/seat-selection.model';
+import type { SeatMapData, SelectedSeat } from '../models/seat-selection.model';
 
 interface SeatSelectionStoreValue {
   seatMapData: SeatMapData | null;
-  selectedSeatIds: string[];
+  selectedSeats: SelectedSeat[];
   isLoading: boolean;
   error: string | null;
   setSeatMapData: Dispatch<SetStateAction<SeatMapData | null>>;
-  setSelectedSeatIds: Dispatch<SetStateAction<string[]>>;
+  setSelectedSeats: Dispatch<SetStateAction<SelectedSeat[]>>;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   setError: Dispatch<SetStateAction<string | null>>;
 }
@@ -31,22 +31,22 @@ export const SeatSelectionProvider = ({
   children,
 }: SeatSelectionProviderProps): ReactElement => {
   const [seatMapData, setSeatMapData] = useState<SeatMapData | null>(null);
-  const [selectedSeatIds, setSelectedSeatIds] = useState<string[]>([]);
+  const [selectedSeats, setSelectedSeats] = useState<SelectedSeat[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const value: SeatSelectionStoreValue = useMemo(
     () => ({
       seatMapData,
-      selectedSeatIds,
+      selectedSeats,
       isLoading,
       error,
       setSeatMapData,
-      setSelectedSeatIds,
+      setSelectedSeats,
       setIsLoading,
       setError,
     }),
-    [seatMapData, selectedSeatIds, isLoading, error]
+    [seatMapData, selectedSeats, isLoading, error]
   );
 
   return (
@@ -56,8 +56,6 @@ export const SeatSelectionProvider = ({
 
 export const useSeatSelectionStore = () => {
   const context = useContext(SeatSelectionStoreContext);
-  if (!context) {
-    throw new Error('useSeatSelectionStore must be used inside SeatSelectionProvider');
-  }
+  if (!context) throw new Error('useSeatSelectionStore must be used inside SeatSelectionProvider');
   return context;
 };

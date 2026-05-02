@@ -18,6 +18,9 @@ const initialFormData: TripSearchFormData = {
   destinationStopId: '',
   date: '',
   passengers: 1,
+  normales: 1,
+  adultosMayores: 0,
+  identificaciones: [],
 };
 
 export function TripSearchScreen(): ReactElement {
@@ -31,17 +34,38 @@ export function TripSearchScreen(): ReactElement {
     field: K,
     value: TripSearchFormData[K]
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: value };
+      
+      // Si adultosMayores cambió, ajustar el array de identificaciones
+      if (field === 'adultosMayores') {
+        const newCount = (value as number) || 0;
+        const current = updated.identificaciones || [];
+        if (newCount > current.length) {
+          updated.identificaciones = [...current, ...Array(newCount - current.length).fill('')];
+        } else {
+          updated.identificaciones = current.slice(0, newCount);
+        }
+      }
+      
+      // Mantener passengers sincronizado con normales + adultosMayores
+      if (field === 'normales' || field === 'adultosMayores') {
+        updated.passengers = (updated.normales || 0) + (updated.adultosMayores || 0);
+      }
+      
+      return updated;
+    });
   };
 
   const handleSubmit = async () => {
     const success = await handleSearch(formData);
     if (success) {
+      const totalPassengers = formData.normales + formData.adultosMayores;
       navigation.navigate('SearchResults', {
         originStopId: formData.originStopId,
         destinationStopId: formData.destinationStopId,
         date: formData.date,
-        passengers: formData.passengers,
+        passengers: totalPassengers,
       });
     }
   };

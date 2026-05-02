@@ -1,19 +1,20 @@
 import type { ReactElement } from 'react';
 import { useMemo } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
+import type { SelectedSeat } from '../models/seat-selection.model';
 
 interface SeatSelectionSummaryProps {
-  selectedSeatCodes: string[];
+  selectedSeats: SelectedSeat[];
   maxPassengers: number;
   canConfirm: boolean;
   onConfirm: () => void;
 }
 
 export function SeatSelectionSummary({
-  selectedSeatCodes,
+  selectedSeats,
   maxPassengers,
   canConfirm,
   onConfirm,
@@ -21,33 +22,44 @@ export function SeatSelectionSummary({
   const { theme } = useAppTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
-  const seatLabel = selectedSeatCodes.length > 0 ? selectedSeatCodes.join(', ') : '—';
-
   return (
     <View style={styles.container}>
-      <View style={styles.infoRow}>
-        <View>
-          <Text style={styles.infoLabel}>ASIENTO</Text>
-          <Text style={styles.infoValue} numberOfLines={1}>
-            {seatLabel}
-          </Text>
-        </View>
-        <View style={styles.countBadge}>
-          <Text style={styles.countText}>
-            {selectedSeatCodes.length}/{maxPassengers}
-          </Text>
-        </View>
-      </View>
+      {selectedSeats.length > 0 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.seatsList}
+          contentContainerStyle={styles.seatsListContent}
+        >
+          {selectedSeats.map((s) => (
+            <View key={s.seatId} style={styles.seatChip}>
+              <Text style={styles.seatChipCode}>{s.seatCode}</Text>
+              <Text style={styles.seatChipType}>
+                {s.passengerType === 'adulto_mayor' ? 'A. Mayor' : 'Normal'}
+              </Text>
+            </View>
+          ))}
+        </ScrollView>
+      )}
 
-      <TouchableOpacity
-        style={[styles.confirmBtn, !canConfirm && styles.confirmBtnDisabled]}
-        onPress={onConfirm}
-        disabled={!canConfirm}
-        activeOpacity={0.85}
-      >
-        <Text style={styles.confirmBtnText}>Continuar</Text>
-        <Ionicons name="arrow-forward" size={18} color={theme.colors.white} />
-      </TouchableOpacity>
+      <View style={styles.footer}>
+        <View style={styles.countWrap}>
+          <Text style={styles.countText}>
+            {selectedSeats.length}/{maxPassengers}
+          </Text>
+          <Text style={styles.countLabel}>asientos</Text>
+        </View>
+
+        <TouchableOpacity
+          style={[styles.confirmBtn, !canConfirm && styles.confirmBtnDisabled]}
+          onPress={onConfirm}
+          disabled={!canConfirm}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.confirmBtnText}>Continuar</Text>
+          <Ionicons name="arrow-forward" size={18} color={theme.colors.white} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -58,41 +70,56 @@ function makeStyles(theme: AppTheme) {
       backgroundColor: theme.colors.surface,
       borderTopWidth: 1,
       borderTopColor: theme.colors.border,
-      paddingHorizontal: 20,
-      paddingTop: 14,
+      paddingTop: 12,
       paddingBottom: 30,
-      gap: 14,
+      gap: 12,
     },
-    infoRow: {
-      flexDirection: 'row',
+    seatsList: {
+      maxHeight: 64,
+    },
+    seatsListContent: {
+      paddingHorizontal: 16,
+      gap: 8,
       alignItems: 'center',
-      justifyContent: 'space-between',
     },
-    infoLabel: {
-      fontSize: 10,
-      fontWeight: '700',
-      color: theme.colors.textSecondary,
-      letterSpacing: 1,
-      marginBottom: 2,
-    },
-    infoValue: {
-      fontSize: theme.typography.lg,
-      fontWeight: '700',
-      color: theme.colors.textPrimary,
-      maxWidth: 220,
-    },
-    countBadge: {
+    seatChip: {
       backgroundColor: theme.colors.surfaceAlt,
       borderRadius: 10,
       paddingHorizontal: 12,
-      paddingVertical: 6,
+      paddingVertical: 8,
+      alignItems: 'center',
+      minWidth: 60,
     },
-    countText: {
+    seatChipCode: {
       fontSize: theme.typography.sm,
       fontWeight: '700',
+      color: theme.colors.textPrimary,
+    },
+    seatChipType: {
+      fontSize: 10,
+      color: theme.colors.textSecondary,
+      marginTop: 2,
+    },
+    footer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      gap: 12,
+    },
+    countWrap: {
+      alignItems: 'center',
+    },
+    countText: {
+      fontSize: theme.typography.lg,
+      fontWeight: '700',
+      color: theme.colors.textPrimary,
+    },
+    countLabel: {
+      fontSize: 10,
       color: theme.colors.textSecondary,
     },
     confirmBtn: {
+      flex: 1,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',

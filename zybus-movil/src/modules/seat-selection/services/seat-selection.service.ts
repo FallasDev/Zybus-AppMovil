@@ -41,11 +41,19 @@ const wait = (ms = 400): Promise<void> =>
     setTimeout(resolve, ms);
   });
 
+const cedulaRegex = /^[1-9]\d{8}$/;
+
 export const seatSelectionService = {
   async getTripSeats(tripId: string): Promise<SeatMapResponseDTO> {
     await wait();
     const data = generateSeatMapData(tripId);
     if (!data.seats.length) throw new Error(SEAT_SELECTION_ERRORS.TRIP_SEATS_NOT_FOUND);
     return toSeatMapResponseDTO(data);
+  },
+
+  async verifyCedula(cedula: string): Promise<{ valid: boolean; name: string }> {
+    await wait(900);
+    const valid = cedulaRegex.test(cedula.trim());
+    return { valid, name: valid ? 'Pasajero verificado' : '' };
   },
 };

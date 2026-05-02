@@ -7,12 +7,11 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import DateTimePicker, {
-  type DateTimePickerEvent,
-} from '@react-native-community/datetimepicker';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
@@ -78,6 +77,12 @@ export function TripSearchForm({
     if (date) onChange('date', formatDateForStorage(date));
   };
 
+  const updateIdentificacion = (index: number, value: string) => {
+    const next = [...formData.identificaciones];
+    next[index] = value;
+    onChange('identificaciones', next);
+  };
+
   return (
     <View style={styles.container}>
       {/* Origen */}
@@ -118,56 +123,20 @@ export function TripSearchForm({
         <Ionicons name="chevron-forward" size={18} color={theme.colors.textSecondary} />
       </Pressable>
 
-      {/* Fecha + Pasajeros en fila */}
-      <View style={styles.rowFields}>
-        <Pressable
-          style={[styles.field, styles.rowField]}
-          onPress={() => setShowDatePicker(true)}
-          disabled={isLoading}
-        >
-          <Ionicons name="calendar-outline" size={20} color={theme.colors.textSecondary} />
-          <View style={styles.rowFieldContent}>
-            <Text style={styles.fieldLabel}>FECHA</Text>
-            <Text style={[styles.fieldValue, !dateDisplay && styles.fieldPlaceholder]}>
-              {dateDisplay || 'Selecciona'}
-            </Text>
-          </View>
-        </Pressable>
-
-        <View style={styles.rowSeparator} />
-
-        <View style={[styles.field, styles.rowField]}>
-          <Ionicons name="person-outline" size={20} color={theme.colors.textSecondary} />
-          <View style={styles.rowFieldContent}>
-            <Text style={styles.fieldLabel}>PASAJEROS</Text>
-            <View style={styles.passengerRow}>
-              <TouchableOpacity
-                style={styles.passengerBtn}
-                onPress={() => onChange('passengers', Math.max(1, formData.passengers - 1))}
-                disabled={isLoading || formData.passengers <= 1}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <Ionicons
-                  name="remove"
-                  size={16}
-                  color={
-                    formData.passengers <= 1 ? theme.colors.textSecondary : theme.colors.textPrimary
-                  }
-                />
-              </TouchableOpacity>
-              <Text style={styles.passengerCount}>{formData.passengers}</Text>
-              <TouchableOpacity
-                style={styles.passengerBtn}
-                onPress={() => onChange('passengers', formData.passengers + 1)}
-                disabled={isLoading}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <Ionicons name="add" size={16} color={theme.colors.textPrimary} />
-              </TouchableOpacity>
-            </View>
-          </View>
+      {/* Fecha */}
+      <Pressable
+        style={[styles.field, styles.singleField]}
+        onPress={() => setShowDatePicker(true)}
+        disabled={isLoading}
+      >
+        <Ionicons name="calendar-outline" size={20} color={theme.colors.textSecondary} />
+        <View style={styles.fieldContent}>
+          <Text style={styles.fieldLabel}>FECHA</Text>
+          <Text style={[styles.fieldValue, !dateDisplay && styles.fieldPlaceholder]}>
+            {dateDisplay || TRIP_SEARCH_TEXT.DATE_PLACEHOLDER}
+          </Text>
         </View>
-      </View>
+      </Pressable>
 
       {/* Botón buscar */}
       <TouchableOpacity
@@ -180,7 +149,7 @@ export function TripSearchForm({
           {isLoading ? TRIP_SEARCH_TEXT.LOADING : TRIP_SEARCH_TEXT.SEARCH_BUTTON}
         </Text>
         {!isLoading && (
-          <Ionicons name="arrow-forward" size={18} color={theme.colors.white} style={styles.searchBtnIcon} />
+          <Ionicons name="arrow-forward" size={18} color={theme.colors.white} />
         )}
       </TouchableOpacity>
 
@@ -253,7 +222,6 @@ export function TripSearchForm({
                 onChange={handleDateChange}
                 locale="es"
                 style={styles.inlinePicker}
-                
               />
             </View>
           </View>
@@ -268,8 +236,6 @@ function makeStyles(theme: AppTheme) {
     container: {
       gap: 0,
     },
-
-    /* Campos origen / destino */
     field: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -288,6 +254,10 @@ function makeStyles(theme: AppTheme) {
     fieldBottom: {
       borderBottomLeftRadius: 12,
       borderBottomRightRadius: 12,
+    },
+    singleField: {
+      borderRadius: 12,
+      marginTop: 10,
     },
     fieldDivider: {
       height: 1,
@@ -318,51 +288,88 @@ function makeStyles(theme: AppTheme) {
       fontWeight: '400',
     },
 
-    /* Fila fecha + pasajeros */
-    rowFields: {
-      flexDirection: 'row',
+    /* Sección pasajeros */
+    passengersSection: {
       marginTop: 10,
       borderRadius: 12,
       borderWidth: 1,
       borderColor: theme.colors.border,
-      overflow: 'hidden',
       backgroundColor: theme.colors.inputBackground,
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+      gap: 4,
     },
-    rowField: {
-      flex: 1,
-      borderWidth: 0,
-      borderRadius: 0,
-      paddingVertical: 14,
-      paddingHorizontal: 12,
-      gap: 8,
-    },
-    rowFieldContent: {
-      flex: 1,
-    },
-    rowSeparator: {
-      width: 1,
-      backgroundColor: theme.colors.border,
-      marginVertical: 10,
-    },
-    passengerRow: {
+    passengersSectionHeader: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 10,
+      gap: 6,
+      marginBottom: 8,
     },
-    passengerBtn: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
+    passengerTypeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 8,
+    },
+    typeDivider: {
+      height: 1,
+      backgroundColor: theme.colors.border,
+    },
+    typeLabel: {
+      fontSize: theme.typography.sm,
+      fontWeight: '600',
+      color: theme.colors.textPrimary,
+    },
+    counter: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+    },
+    counterBtn: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
       backgroundColor: theme.colors.surfaceAlt,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    passengerCount: {
+    counterValue: {
       fontSize: theme.typography.md,
       fontWeight: '700',
       color: theme.colors.textPrimary,
-      minWidth: 16,
+      minWidth: 20,
       textAlign: 'center',
+    },
+
+    /* Cédulas */
+    idInputWrap: {
+      marginTop: 10,
+    },
+    idLabel: {
+      fontSize: 10,
+      fontWeight: '700',
+      color: theme.colors.brandBlue,
+      letterSpacing: 0.8,
+      marginBottom: 6,
+    },
+    idInputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.colors.surface,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: theme.colors.brandBlue,
+      paddingHorizontal: 12,
+      gap: 8,
+    },
+    idIcon: {
+      marginVertical: 12,
+    },
+    idInput: {
+      flex: 1,
+      height: 46,
+      fontSize: theme.typography.md,
+      color: theme.colors.textPrimary,
     },
 
     /* Botón buscar */
@@ -384,11 +391,8 @@ function makeStyles(theme: AppTheme) {
       fontSize: theme.typography.md,
       fontWeight: '700',
     },
-    searchBtnIcon: {
-      marginTop: 1,
-    },
 
-    /* Modal paradas */
+    /* Modales */
     modalOverlay: {
       flex: 1,
       justifyContent: 'flex-end',

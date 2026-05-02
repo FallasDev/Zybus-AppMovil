@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import { LoadingState, EmptyState } from '../../../shared/components';
 import type { AppTheme } from '../../../shared/theme/types';
@@ -23,7 +24,8 @@ export function TripDetailScreen(): ReactElement {
   const { theme } = useAppTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
-  const { tripId, passengers } = route.params;
+  const { tripId, passengers: initialPassengers } = route.params;
+  const [passengerCount, setPassengerCount] = useState(initialPassengers || 1);
   const { tripDetail, isLoading, error } = useTripDetail(tripId);
 
   return (
@@ -48,13 +50,39 @@ export function TripDetailScreen(): ReactElement {
             <TripStopsTimeline stops={tripDetail.stops} />
             <TripFareTable fares={tripDetail.fares} />
             <TripBusInfo bus={tripDetail.bus} />
+
+            {/* Selector de pasajeros */}
+            <View style={styles.passengerSelector}>
+              <View style={styles.passengerHeader}>
+                <Ionicons name="people-outline" size={18} color={theme.colors.textSecondary} />
+                <Text style={styles.passengerLabel}>Cantidad de pasajeros</Text>
+              </View>
+              <View style={styles.passengerCounter}>
+                <TouchableOpacity
+                  style={styles.counterBtn}
+                  onPress={() => setPassengerCount(Math.max(1, passengerCount - 1))}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Ionicons name="remove" size={16} color={theme.colors.textPrimary} />
+                </TouchableOpacity>
+                <Text style={styles.counterValue}>{passengerCount}</Text>
+                <TouchableOpacity
+                  style={styles.counterBtn}
+                  onPress={() => setPassengerCount(passengerCount + 1)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Ionicons name="add" size={16} color={theme.colors.textPrimary} />
+                </TouchableOpacity>
+              </View>
+            </View>
+
             <View style={styles.bottomSpacer} />
           </ScrollView>
 
           <View style={styles.footer}>
             <TouchableOpacity
               style={styles.selectBtn}
-              onPress={() => navigation.navigate('SeatSelection', { tripId, passengers })}
+              onPress={() => navigation.navigate('SeatSelection', { tripId, passengers: passengerCount })}
               activeOpacity={0.85}
             >
               <Text style={styles.selectBtnText}>{TRIP_DETAIL_TEXT.SELECT_SEATS_BUTTON}</Text>
@@ -124,6 +152,46 @@ function makeStyles(theme: AppTheme) {
     errorText: {
       color: theme.colors.error,
       fontSize: theme.typography.sm,
+    },
+    passengerSelector: {
+      marginTop: 20,
+      padding: 16,
+      backgroundColor: theme.colors.inputBackground,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    passengerHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 12,
+    },
+    passengerLabel: {
+      fontSize: theme.typography.md,
+      fontWeight: '600',
+      color: theme.colors.textPrimary,
+    },
+    passengerCounter: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 16,
+    },
+    counterBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: theme.colors.surfaceAlt,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    counterValue: {
+      fontSize: theme.typography.lg,
+      fontWeight: '700',
+      color: theme.colors.textPrimary,
+      minWidth: 30,
+      textAlign: 'center',
     },
   });
 }
