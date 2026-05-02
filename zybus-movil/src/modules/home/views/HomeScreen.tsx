@@ -1,16 +1,19 @@
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
 import type { RootStackParamList } from '../../../navigation/types';
+import { images } from '../../../shared/assets/images';
 import { nearbyStops } from '../constants/home.mock';
 import { BusStopCard } from '../components/BusStopCard';
 import { useTripSearch } from '../../trip-search/hooks/useTripSearch';
 import { TripSearchForm } from '../../trip-search/components/TripSearchForm';
 import type { TripSearchFormData } from '../../trip-search/models/trip-search.model';
+import { useUnreadCount } from '../../notifications/store/notifications.store';
 
 type HomeNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -27,6 +30,7 @@ export function HomeScreen(): ReactElement {
   const styles = useMemo(() => makeStyles(theme), [theme]);
   const { stopOptions, isLoading, error, handleSearch } = useTripSearch();
   const [formData, setFormData] = useState<TripSearchFormData>(initialFormData);
+  const unreadCount = useUnreadCount();
 
   const handleChange = <K extends keyof TripSearchFormData>(
     field: K,
@@ -53,16 +57,42 @@ export function HomeScreen(): ReactElement {
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={styles.topRow}>
-        <View>
-          <Text style={styles.smallText}>Hola,</Text>
-          <Text style={styles.title}>¿A dónde vas hoy?</Text>
-        </View>
-        <View style={styles.profileCircle}>
-          <Text style={styles.profileText}>D</Text>
+      {/* Header: logo izquierda | campana + perfil derecha */}
+      <View style={styles.headerBar}>
+        <Image source={images.zybusLogo} style={styles.logo} resizeMode="contain" />
+
+        <View style={styles.headerActions}>
+          {/* Campana con badge */}
+          <TouchableOpacity
+            style={styles.bellWrap}
+            onPress={() => navigation.navigate('Notifications')}
+            activeOpacity={0.75}
+          >
+            <Ionicons
+              name="notifications-outline"
+              size={24}
+              color={theme.colors.textPrimary}
+            />
+            {unreadCount > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          {/* Círculo de perfil */}
+          <View style={styles.profileCircle}>
+            <Text style={styles.profileText}>DS</Text>
+          </View>
         </View>
       </View>
 
+      {/* Saludo */}
+      <Text style={styles.greeting}>¿A dónde vas hoy?</Text>
+
+      {/* Formulario de búsqueda */}
       <View style={styles.searchSection}>
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <TripSearchForm
@@ -74,6 +104,7 @@ export function HomeScreen(): ReactElement {
         />
       </View>
 
+      {/* Paradas cercanas */}
       <View style={styles.sectionRow}>
         <Text style={styles.sectionTitle}>Paradas Cercanas</Text>
         <TouchableOpacity onPress={() => navigation.navigate('BusRoute')}>
@@ -105,34 +136,71 @@ function makeStyles(theme: AppTheme) {
       paddingTop: 52,
       paddingBottom: 40,
     },
-    topRow: {
+
+    /* Header bar */
+    headerBar: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: 20,
+      justifyContent: 'space-between',
+      marginBottom: 18,
     },
-    smallText: {
-      fontSize: 14,
-      color: theme.colors.textSecondary,
-      marginBottom: 4,
+    logo: {
+      width: 100,
+      height: 36,
     },
-    title: {
-      fontSize: 24,
+    headerActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+
+    /* Campana con badge */
+    bellWrap: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: theme.colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    badge: {
+      position: 'absolute',
+      top: 4,
+      right: 4,
+      minWidth: 16,
+      height: 16,
+      borderRadius: 8,
+      backgroundColor: theme.colors.error,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 3,
+    },
+    badgeText: {
+      color: theme.colors.white,
+      fontSize: 9,
       fontWeight: '700',
-      color: theme.colors.textPrimary,
     },
+
+    /* Perfil */
     profileCircle: {
-      width: 42,
-      height: 42,
-      borderRadius: 21,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
       backgroundColor: theme.colors.brandBlue,
       alignItems: 'center',
       justifyContent: 'center',
     },
     profileText: {
       color: theme.colors.white,
-      fontSize: 16,
+      fontSize: 13,
       fontWeight: '700',
+    },
+
+    greeting: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: theme.colors.textPrimary,
+      marginBottom: 16,
     },
     searchSection: {
       backgroundColor: theme.colors.surface,

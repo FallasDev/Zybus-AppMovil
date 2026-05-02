@@ -9,6 +9,7 @@ import { TicketsScreen } from '../modules/tickets';
 import { SearchResultsScreen, TripSearchProvider } from '../modules/trip-search';
 import { TripDetailScreen, TripDetailProvider } from '../modules/trip-detail';
 import { SeatSelectionScreen, SeatSelectionProvider } from '../modules/seat-selection';
+import { NotificationsScreen, NotificationsProvider } from '../modules/notifications';
 import { MainTabs } from './MainTabs';
 import type { RootStackParamList } from './types';
 
@@ -17,6 +18,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export const AppNavigator = (): ReactElement => {
   return (
     <NavigationContainer>
+      <NotificationsProvider>
       <TripSearchProvider>
         <TripDetailProvider>
           <SeatSelectionProvider>
@@ -33,10 +35,12 @@ export const AppNavigator = (): ReactElement => {
               <Stack.Screen name="SearchResults" component={SearchResultsScreen} />
               <Stack.Screen name="TripDetail" component={TripDetailScreen} />
               <Stack.Screen name="SeatSelection" component={SeatSelectionScreen} />
+              <Stack.Screen name="Notifications" component={NotificationsScreen} />
             </Stack.Navigator>
           </SeatSelectionProvider>
         </TripDetailProvider>
       </TripSearchProvider>
+      </NotificationsProvider>
     </NavigationContainer>
   );
 };
