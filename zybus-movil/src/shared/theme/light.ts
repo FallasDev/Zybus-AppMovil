@@ -14,7 +14,7 @@ export const lightTheme: AppTheme = {
     textOnBrand: '#ffffff',
     border: '#dcdcdc',
     inputBackground: '#f3f3f3',
-    error: '#b42318',
+    error: '#b9261c',
     errorSurface: '#fff1f1',
     success: '#00AE31',
     overlay: 'rgba(0,0,0,0.35)',
