@@ -1,0 +1,10 @@
+export { TripDetailScreen } from './views/TripDetailScreen';
+export { TripDetailProvider, useTripDetailStore } from './store/trip-detail.store';
+export { useTripDetail } from './hooks/useTripDetail';
+export { tripDetailService } from './services/trip-detail.service';
+export { mapTripDetailFromDTO } from './models/trip-detail.mapper';
+export { TripDetailHeader } from './components/TripDetailHeader';
+export { TripStopsTimeline } from './components/TripStopsTimeline';
+export { TripFareTable } from './components/TripFareTable';
+export { TripBusInfo } from './components/TripBusInfo';
+export type { TripDetail, TripStop, TripFare, TripBus } from './models/trip-detail.model';

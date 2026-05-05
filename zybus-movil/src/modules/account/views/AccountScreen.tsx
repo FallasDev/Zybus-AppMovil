@@ -1,98 +1,138 @@
 import type { ReactElement } from 'react';
 import { useMemo } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
+import type { RootStackParamList } from '../../../navigation/types';
+
+type AccountNavProp = NativeStackNavigationProp<RootStackParamList>;
+
+const getGreeting = (): string => {
+  const h = new Date().getHours();
+  if (h < 12) return 'Buenos días,';
+  if (h < 18) return 'Buenas tardes,';
+  return 'Buenas noches,';
+};
+
+interface AccountOption {
+  id: string;
+  label: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  onPress: () => void;
+}
 
 export function AccountScreen(): ReactElement {
+  const navigation = useNavigation<AccountNavProp>();
   const { theme, toggleTheme, mode } = useAppTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
-  const handleEditProfile = (): void => {
-    Alert.alert('Próximo paso', 'Aquí luego abrimos editar perfil.');
-  };
+  const placeholder = (label: string) => () =>
+    Alert.alert('Próximamente', `${label} estará disponible pronto.`);
 
-  const handlePaymentMethods = (): void => {
-    Alert.alert('Próximo paso', 'Aquí luego abrimos métodos de pago.');
-  };
+  const options: AccountOption[] = [
+    {
+      id: 'profile',
+      label: 'Perfil y Contraseña',
+      icon: 'person-circle-outline',
+      onPress: placeholder('Perfil y Contraseña'),
+    },
+    {
+      id: 'tickets',
+      label: 'Mis Tickets',
+      icon: 'ticket-outline',
+      onPress: placeholder('Mis Tickets'),
+    },
+    {
+      id: 'payment',
+      label: 'Métodos de Pago',
+      icon: 'card-outline',
+      onPress: placeholder('Métodos de Pago'),
+    },
+    {
+      id: 'notifications',
+      label: 'Notificaciones',
+      icon: 'notifications-outline',
+      onPress: () => navigation.navigate('Notifications'),
+    },
+    {
+      id: 'settings',
+      label: 'Configuración',
+      icon: 'settings-outline',
+      onPress: placeholder('Configuración'),
+    },
+    {
+      id: 'help',
+      label: 'Centro de Ayuda',
+      icon: 'help-circle-outline',
+      onPress: placeholder('Centro de Ayuda'),
+    },
+  ];
 
-  const handleNotifications = (): void => {
-    Alert.alert('Próximo paso', 'Aquí luego abrimos notificaciones.');
-  };
-
-  const handleSettings = (): void => {
-    Alert.alert('Próximo paso', 'Aquí luego abrimos configuración.');
-  };
-
-  const handleLogout = (): void => {
-    Alert.alert('Cerrar sesión', '¿Seguro que deseas cerrar sesión?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Cerrar sesión', style: 'destructive' },
-    ]);
-  };
+  const pairs: AccountOption[][] = [];
+  for (let i = 0; i < options.length; i += 2) {
+    pairs.push(options.slice(i, i + 2));
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.headerCard}>
+      {/* Cabecera de perfil */}
+      <View style={styles.profileHeader}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>D</Text>
+          <Text style={styles.avatarText}>DS</Text>
         </View>
-        <Text style={styles.name}>Dayanna Solano</Text>
-        <Text style={styles.email}>dayanasolano876@gmail.com</Text>
+        <Text style={styles.greeting}>{getGreeting()}</Text>
+        <Text style={styles.userName}>Dayanna Solano</Text>
+        <Text style={styles.userEmail}>dayanasolano876@gmail.com</Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Mi cuenta</Text>
+      {/* Cuadrícula de opciones */}
+      {pairs.map((pair, i) => (
+        <View key={i} style={styles.row}>
+          {pair.map((opt) => (
+            <Pressable
+              key={opt.id}
+              style={({ pressed }) => [styles.optionCard, pressed && styles.optionCardPressed]}
+              onPress={opt.onPress}
+            >
+              <Ionicons name={opt.icon} size={28} color={theme.colors.brandBlue} />
+              <Text style={styles.optionLabel}>{opt.label}</Text>
+            </Pressable>
+          ))}
+          {pair.length === 1 && <View style={styles.optionCardEmpty} />}
+        </View>
+      ))}
 
-        <Pressable style={styles.optionCard} onPress={handleEditProfile}>
-          <View>
-            <Text style={styles.optionTitle}>Editar perfil</Text>
-            <Text style={styles.optionSubtitle}>Actualiza tu nombre, correo y datos básicos</Text>
-          </View>
-          <Text style={styles.arrow}>›</Text>
-        </Pressable>
+      {/* Toggle de tema */}
+      <Pressable
+        style={({ pressed }) => [styles.themeCard, pressed && styles.optionCardPressed]}
+        onPress={toggleTheme}
+      >
+        <Ionicons
+          name={mode === 'dark' ? 'moon-outline' : 'sunny-outline'}
+          size={22}
+          color={theme.colors.textSecondary}
+        />
+        <Text style={styles.themeLabel}>
+          Tema: {mode === 'dark' ? 'Oscuro' : 'Claro'}
+        </Text>
+        <Ionicons name="chevron-forward" size={18} color={theme.colors.textSecondary} />
+      </Pressable>
 
-        <Pressable style={styles.optionCard} onPress={handlePaymentMethods}>
-          <View>
-            <Text style={styles.optionTitle}>Métodos de pago</Text>
-            <Text style={styles.optionSubtitle}>Administra tarjetas y formas de pago</Text>
-          </View>
-          <Text style={styles.arrow}>›</Text>
-        </Pressable>
-
-        <Pressable style={styles.optionCard} onPress={handleNotifications}>
-          <View>
-            <Text style={styles.optionTitle}>Notificaciones</Text>
-            <Text style={styles.optionSubtitle}>Controla avisos y recordatorios</Text>
-          </View>
-          <Text style={styles.arrow}>›</Text>
-        </Pressable>
-
-        <Pressable style={styles.optionCard} onPress={handleSettings}>
-          <View>
-            <Text style={styles.optionTitle}>Configuración</Text>
-            <Text style={styles.optionSubtitle}>Preferencias generales de la aplicación</Text>
-          </View>
-          <Text style={styles.arrow}>›</Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Apariencia</Text>
-
-        <Pressable style={styles.optionCard} onPress={toggleTheme}>
-          <View>
-            <Text style={styles.optionTitle}>Tema de la app</Text>
-            <Text style={styles.optionSubtitle}>
-              Actualmente: {mode === 'dark' ? 'Oscuro' : 'Claro'}
-            </Text>
-          </View>
-          <Text style={styles.arrow}>›</Text>
-        </Pressable>
-      </View>
-
-      <Pressable style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
+      {/* Cerrar sesión — ancho completo */}
+      <Pressable
+        style={({ pressed }) => [styles.logoutCard, pressed && styles.optionCardPressed]}
+        onPress={() =>
+          Alert.alert('Cerrar sesión', '¿Seguro que deseas cerrar sesión?', [
+            { text: 'Cancelar', style: 'cancel' },
+            { text: 'Cerrar sesión', style: 'destructive' },
+          ])
+        }
+      >
+        <Ionicons name="power-outline" size={24} color={theme.colors.error} />
+        <Text style={styles.logoutLabel}>Cerrar Sesión</Text>
       </Pressable>
     </ScrollView>
   );
@@ -106,91 +146,114 @@ function makeStyles(theme: AppTheme) {
     },
     content: {
       padding: 20,
-      paddingTop: 24,
-      paddingBottom: 32,
+      paddingTop: 52,
+      paddingBottom: 40,
+      gap: 12,
     },
-    headerCard: {
-      backgroundColor: theme.colors.brandBlue,
-      borderRadius: 22,
-      paddingVertical: 28,
-      paddingHorizontal: 20,
+    profileHeader: {
       alignItems: 'center',
-      marginBottom: 20,
+      marginBottom: 8,
     },
     avatar: {
-      width: 82,
-      height: 82,
-      borderRadius: 41,
-      backgroundColor: theme.colors.surface,
+      width: 80,
+      height: 80,
+      borderRadius: 999,
+      backgroundColor: theme.colors.brandBlue,
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: 14,
+      marginBottom: 12,
+      overflow: 'hidden',
     },
     avatarText: {
-      fontSize: 30,
+      fontSize: 28,
       fontWeight: '700',
-      color: theme.colors.brandBlue,
+      color: theme.colors.white,
     },
-    name: {
-      color: theme.colors.textOnBrand,
-      fontSize: 22,
-      fontWeight: '700',
-      marginBottom: 6,
+    greeting: {
+      fontSize: theme.typography.sm,
+      color: theme.colors.textSecondary,
+      marginBottom: 4,
     },
-    email: {
-      color: '#dbe6f5',
-      fontSize: 14,
-    },
-    section: {
-      marginBottom: 20,
-    },
-    sectionTitle: {
-      fontSize: 18,
+    userName: {
+      fontSize: theme.typography.xl,
       fontWeight: '700',
       color: theme.colors.textPrimary,
-      marginBottom: 12,
+      marginBottom: 4,
+    },
+    userEmail: {
+      fontSize: theme.typography.sm,
+      color: theme.colors.textSecondary,
+      marginBottom: 20,
+    },
+    row: {
+      flexDirection: 'row',
+      gap: 12,
     },
     optionCard: {
+      flex: 1,
       backgroundColor: theme.colors.surface,
       borderRadius: 18,
-      padding: 16,
-      marginBottom: 12,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      paddingVertical: 22,
+      paddingHorizontal: 16,
       alignItems: 'center',
+      justifyContent: 'center',
+      gap: 10,
       shadowColor: theme.colors.black,
       shadowOpacity: 0.05,
       shadowRadius: 8,
       shadowOffset: { width: 0, height: 2 },
       elevation: 2,
     },
-    optionTitle: {
-      fontSize: 16,
+    optionCardPressed: {
+      opacity: 0.8,
+    },
+    optionCardEmpty: {
+      flex: 1,
+    },
+    optionLabel: {
+      fontSize: theme.typography.sm,
       fontWeight: '700',
       color: theme.colors.textPrimary,
-      marginBottom: 4,
+      textAlign: 'center',
     },
-    optionSubtitle: {
-      fontSize: 13,
-      color: theme.colors.textSecondary,
-      maxWidth: 250,
-    },
-    arrow: {
-      fontSize: 28,
-      color: theme.colors.brandBlue,
-      fontWeight: '700',
-    },
-    logoutButton: {
-      backgroundColor: theme.colors.errorSurface,
+    themeCard: {
+      backgroundColor: theme.colors.surface,
       borderRadius: 14,
       paddingVertical: 14,
+      paddingHorizontal: 18,
+      flexDirection: 'row',
       alignItems: 'center',
-      marginTop: 8,
+      gap: 12,
+      shadowColor: theme.colors.black,
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 2 },
+      elevation: 2,
     },
-    logoutButtonText: {
-      color: theme.colors.error,
+    themeLabel: {
+      flex: 1,
+      fontSize: theme.typography.sm,
+      fontWeight: '600',
+      color: theme.colors.textSecondary,
+    },
+    logoutCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: 18,
+      paddingVertical: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'row',
+      gap: 10,
+      shadowColor: theme.colors.black,
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 2 },
+      elevation: 2,
+    },
+    logoutLabel: {
+      fontSize: theme.typography.md,
       fontWeight: '700',
-      fontSize: 16,
+      color: theme.colors.error,
     },
   });
 }
