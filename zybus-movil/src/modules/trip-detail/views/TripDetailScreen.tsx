@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import { LoadingState, EmptyState } from '../../../shared/components';
 import type { AppTheme } from '../../../shared/theme/types';
@@ -25,8 +24,21 @@ export function TripDetailScreen(): ReactElement {
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
   const { tripId, passengers: initialPassengers } = route.params;
-  const [passengerCount, setPassengerCount] = useState(initialPassengers || 1);
+  const [passengerCount] = useState(initialPassengers || 1);
   const { tripDetail, isLoading, error } = useTripDetail(tripId);
+
+  const handleContinue = () => {
+    if (!tripDetail) return;
+    if (tripDetail.bus.usesSeats) {
+      navigation.navigate('SeatSelection', { tripId, passengers: passengerCount });
+    } else {
+      Alert.alert(
+        'Sin selección de asiento',
+        'Este servicio no asigna asientos. Tu lugar es de primera llegada.',
+        [{ text: 'Entendido' }]
+      );
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -51,30 +63,7 @@ export function TripDetailScreen(): ReactElement {
             <TripFareTable fares={tripDetail.fares} />
             <TripBusInfo bus={tripDetail.bus} />
 
-            {/* Selector de pasajeros */}
-            <View style={styles.passengerSelector}>
-              <View style={styles.passengerHeader}>
-                <Ionicons name="people-outline" size={18} color={theme.colors.textSecondary} />
-                <Text style={styles.passengerLabel}>Cantidad de pasajeros</Text>
-              </View>
-              <View style={styles.passengerCounter}>
-                <TouchableOpacity
-                  style={styles.counterBtn}
-                  onPress={() => setPassengerCount(Math.max(1, passengerCount - 1))}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                >
-                  <Ionicons name="remove" size={16} color={theme.colors.textPrimary} />
-                </TouchableOpacity>
-                <Text style={styles.counterValue}>{passengerCount}</Text>
-                <TouchableOpacity
-                  style={styles.counterBtn}
-                  onPress={() => setPassengerCount(passengerCount + 1)}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                >
-                  <Ionicons name="add" size={16} color={theme.colors.textPrimary} />
-                </TouchableOpacity>
-              </View>
-            </View>
+           
 
             <View style={styles.bottomSpacer} />
           </ScrollView>
@@ -82,10 +71,14 @@ export function TripDetailScreen(): ReactElement {
           <View style={styles.footer}>
             <TouchableOpacity
               style={styles.selectBtn}
-              onPress={() => navigation.navigate('SeatSelection', { tripId, passengers: passengerCount })}
+              onPress={handleContinue}
               activeOpacity={0.85}
             >
-              <Text style={styles.selectBtnText}>{TRIP_DETAIL_TEXT.SELECT_SEATS_BUTTON}</Text>
+              <Text style={styles.selectBtnText}>
+                {tripDetail.bus.usesSeats
+                  ? TRIP_DETAIL_TEXT.SELECT_SEATS_BUTTON
+                  : TRIP_DETAIL_TEXT.CONFIRM_TRIP_BUTTON}
+              </Text>
             </TouchableOpacity>
           </View>
         </>

@@ -14,6 +14,7 @@ export const TRIP_DETAIL_TEXT = {
   CAPACITY_LABEL: 'Capacidad total',
   LOADING: 'Cargando detalle...',
   SELECT_SEATS_BUTTON: 'Seleccionar asientos',
+  CONFIRM_TRIP_BUTTON: 'Confirmar viaje',
   MINUTES_SUFFIX: ' min',
   KM_SUFFIX: ' km',
   SEATS_SUFFIX: ' asientos',

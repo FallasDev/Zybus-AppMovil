@@ -24,7 +24,7 @@ const mockTripDetails: Record<string, TripDetail> = {
       { fareTypeId: 'ft_2', fareTypeName: 'Estudiante', price: 800 },
       { fareTypeId: 'ft_3', fareTypeName: 'Adulto mayor', price: 600 },
     ],
-    bus: { model: 'Yutong ZK6118HGA', licensePlate: 'AB-1234', typeName: 'Bus Expreso', capacity: 40 },
+    bus: { model: 'Yutong ZK6118HGA', licensePlate: 'AB-1234', typeName: 'Bus Expreso', capacity: 40, usesSeats: true },
   },
   t_2: {
     tripId: 't_2',
@@ -44,7 +44,7 @@ const mockTripDetails: Record<string, TripDetail> = {
       { fareTypeId: 'ft_2', fareTypeName: 'Estudiante', price: 600 },
       { fareTypeId: 'ft_3', fareTypeName: 'Adulto mayor', price: 450 },
     ],
-    bus: { model: 'King Long XMQ6127J', licensePlate: 'CD-5678', typeName: 'Bus Regular', capacity: 45 },
+    bus: { model: 'King Long XMQ6127J', licensePlate: 'CD-5678', typeName: 'Bus Regular', capacity: 45, usesSeats: false },
   },
   t_3: {
     tripId: 't_3',
@@ -63,7 +63,7 @@ const mockTripDetails: Record<string, TripDetail> = {
       { fareTypeId: 'ft_2', fareTypeName: 'Estudiante', price: 750 },
       { fareTypeId: 'ft_3', fareTypeName: 'Adulto mayor', price: 550 },
     ],
-    bus: { model: 'Yutong ZK6118HGA', licensePlate: 'EF-9012', typeName: 'Bus Expreso', capacity: 40 },
+    bus: { model: 'Yutong ZK6118HGA', licensePlate: 'EF-9012', typeName: 'Bus Expreso', capacity: 40, usesSeats: true },
   },
 };
 

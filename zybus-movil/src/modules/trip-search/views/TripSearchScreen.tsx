@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
@@ -26,7 +26,9 @@ const initialFormData: TripSearchFormData = {
 export function TripSearchScreen(): ReactElement {
   const navigation = useNavigation<TripSearchNavProp>();
   const { theme } = useAppTheme();
-  const styles = useMemo(() => makeStyles(theme), [theme]);
+  const { width: windowWidth } = useWindowDimensions();
+  const isTablet = windowWidth >= 600;
+  const styles = useMemo(() => makeStyles(theme, isTablet, windowWidth), [theme, isTablet, windowWidth]);
   const { stopOptions, isLoading, error, handleSearch } = useTripSearch();
   const [formData, setFormData] = useState<TripSearchFormData>(initialFormData);
 
@@ -72,29 +74,40 @@ export function TripSearchScreen(): ReactElement {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>{TRIP_SEARCH_TEXT.TITLE}</Text>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-      <TripSearchForm
-        formData={formData}
-        stopOptions={stopOptions}
-        isLoading={isLoading}
-        onChange={handleChange}
-        onSubmit={handleSubmit}
-      />
+      <View style={styles.inner}>
+        <Text style={styles.title}>{TRIP_SEARCH_TEXT.TITLE}</Text>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+        <TripSearchForm
+          formData={formData}
+          stopOptions={stopOptions}
+          isLoading={isLoading}
+          onChange={handleChange}
+          onSubmit={handleSubmit}
+        />
+      </View>
     </ScrollView>
   );
 }
 
-function makeStyles(theme: AppTheme) {
+function makeStyles(theme: AppTheme, isTablet: boolean, windowWidth: number) {
+  const horizontalPadding = isTablet ? Math.min(windowWidth * 0.12, 80) : 20;
+  const maxContentWidth = 560;
+
   return StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
     },
     content: {
-      padding: 20,
-      paddingTop: 52,
+      flexGrow: 1,
+      paddingTop: isTablet ? 40 : 52,
       paddingBottom: 40,
+      alignItems: isTablet ? 'center' : undefined,
+    },
+    inner: {
+      width: '100%',
+      maxWidth: isTablet ? maxContentWidth : undefined,
+      paddingHorizontal: horizontalPadding,
     },
     title: {
       fontSize: theme.typography.xxl,

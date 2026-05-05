@@ -19,6 +19,7 @@ export function TripBusInfo({ bus }: TripBusInfoProps): ReactElement {
     { label: 'Placa', value: bus.licensePlate },
     { label: 'Tipo', value: bus.typeName },
     { label: TRIP_DETAIL_TEXT.CAPACITY_LABEL, value: `${bus.capacity}${TRIP_DETAIL_TEXT.SEATS_SUFFIX}` },
+    { label: 'Asignación de asientos', value: bus.usesSeats ? 'Sí' : 'No (primera llegada)' },
   ];
 
   return (
