@@ -1,16 +1,18 @@
 import type { ReactElement } from 'react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
 import type { RootStackParamList } from '../../../navigation/types';
+import { Ionicons } from '@expo/vector-icons';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export function LoginScreen({ navigation }: Props): ReactElement {
   const { theme } = useAppTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -18,50 +20,69 @@ export function LoginScreen({ navigation }: Props): ReactElement {
         <Image
           source={require('../../../shared/assets/images/ZybusLogo.png')}
           style={styles.logoImage}
-          resizeMode="contain"
-        />
+          resizeMode="contain" />
       </View>
 
-      <Text style={styles.title}>Inicia sesión en tu cuenta</Text>
+      <Text style={styles.title}>Bienvenido de nuevo</Text>
+      <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
 
       <View style={styles.form}>
         <Text style={styles.label}>Correo electrónico</Text>
-        <TextInput
-          placeholder="Su correo electrónico"
-          placeholderTextColor={theme.colors.textSecondary}
-          style={styles.input}
-        />
+        <View style={styles.inputWrapper}>
+          <Ionicons
+            name="mail-outline"
+            size={18}
+            color={theme.colors.textSecondary}
+            style={styles.inputLeftIcon}
+          />
+
+          <TextInput
+            placeholder="Su correo electrónico"
+            placeholderTextColor={theme.colors.textSecondary}
+            style={[styles.input, styles.inputWithLeftIcon]}
+          />
+        </View>
 
         <Text style={styles.label}>Contraseña</Text>
-        <TextInput
-          placeholder="Su contraseña"
-          placeholderTextColor={theme.colors.textSecondary}
-          secureTextEntry
-          style={styles.input}
-        />
+
+        <View style={styles.inputWrapper}>
+          <Ionicons
+            name="lock-closed-outline"
+            size={18}
+            color={theme.colors.textSecondary}
+            style={styles.inputLeftIcon} />
+
+          <TextInput
+            placeholder="Tu contraseña"
+            placeholderTextColor={theme.colors.textSecondary}
+            secureTextEntry={!showPassword}
+            style={[styles.input, styles.inputWithBothIcons]} />
+
+          <TouchableOpacity
+            style={styles.inputRightIconButton}
+            onPress={() => setShowPassword(!showPassword)}>
+            <Ionicons
+              name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+              size={20}
+              color={theme.colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
 
         <TouchableOpacity style={styles.forgotWrap}>
           <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={() => navigation.navigate('MainTabs')}
-        >
-          <Text style={styles.primaryButtonText}>Inicia Sesión</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.orText}>O</Text>
+        <View style={styles.divider}>
+          <View style={styles.line} />
+          <Text style={styles.dividerText}>o</Text>
+          <View style={styles.line} />
+        </View>
 
         <TouchableOpacity style={styles.socialButton}>
-          <Text style={styles.socialButtonText}>Inicia sesión con Google</Text>
+          <Text style={styles.socialButtonText}>Continuar con Google</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.socialButton, styles.facebookButton]}>
-          <Text style={[styles.socialButtonText, styles.facebookButtonText]}>
-            Inicia sesión con Facebook
-          </Text>
-        </TouchableOpacity>
+
       </View>
 
       <View style={styles.footer}>
@@ -70,7 +91,18 @@ export function LoginScreen({ navigation }: Props): ReactElement {
           <Text style={styles.footerLink}>Registra ahora</Text>
         </TouchableOpacity>
       </View>
+
+      <View pointerEvents="none">
+        <Image
+          source={require('../../../shared/assets/images/bus_login_regis.png')}
+          style={styles.backgroundImage}
+        />
+      </View>
+
     </View>
+
+
+
   );
 }
 
@@ -80,28 +112,35 @@ function makeStyles(theme: AppTheme) {
       flex: 1,
       backgroundColor: theme.colors.surface,
       paddingHorizontal: 24,
-      paddingTop: 48,
+      paddingTop: 60,
     },
     logoBox: {
       alignSelf: 'center',
-      width: 82,
-      height: 82,
-      borderRadius: 18,
+      width: 150,
+      height: 90,
+      borderRadius: 10,
       backgroundColor: theme.colors.surface,
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: 28,
+      marginBottom: 4,
     },
     logoImage: {
-      width: 82,
-      height: 82,
+      width: 160,
+      height: 160,
+      resizeMode: 'contain'
     },
     title: {
-      fontSize: 30,
-      fontWeight: '700',
+      fontSize: 28,
+      fontWeight: '800',
       color: theme.colors.textPrimary,
       textAlign: 'center',
-      marginBottom: 28,
+      marginBottom: 8,
+    },
+    subtitle: {
+      fontSize: 15,
+      color: theme.colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 38,
     },
     form: {
       flex: 1,
@@ -122,9 +161,51 @@ function makeStyles(theme: AppTheme) {
       color: theme.colors.textPrimary,
       marginBottom: 12,
     },
+    inputWrapper: {
+      position: 'relative',
+    },
+    inputLeftIcon: {
+      position: 'absolute',
+      left: 16,
+      top: 18,
+      zIndex: 1,
+    },
+    inputRightIconButton: {
+      position: 'absolute',
+      right: 16,
+      top: 17,
+      zIndex: 1,
+    },
+    inputWithLeftIcon: {
+      paddingLeft: 46,
+    },
+    inputWithBothIcons: {
+      paddingLeft: 46,
+      paddingRight: 50,
+    },
+    divider: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: 22,
+    },
+    line: {
+      flex: 1,
+      height: 1,
+      backgroundColor: theme.colors.border,
+    },
+    dividerText: {
+      marginHorizontal: 12,
+      color: theme.colors.textSecondary,
+      fontSize: 14,
+      fontWeight: '600',
+    },
     forgotWrap: {
       alignItems: 'flex-end',
-      marginBottom: 18,
+      marginTop: 6,
+      marginBottom: 16,
+      color: theme.colors.brandBlue,
+      fontSize: 14,
+      fontWeight: '700',
     },
     forgotText: {
       color: theme.colors.brandBlue,
@@ -132,12 +213,13 @@ function makeStyles(theme: AppTheme) {
       fontWeight: '600',
     },
     primaryButton: {
-      height: 56,
+      height: 58,
       backgroundColor: theme.colors.brandBlue,
-      borderRadius: 8,
+      borderRadius: 12,
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: 22,
+      zIndex: 1
     },
     primaryButtonText: {
       color: theme.colors.white,
@@ -153,30 +235,26 @@ function makeStyles(theme: AppTheme) {
     },
     socialButton: {
       height: 54,
+      borderRadius: 12,
       borderWidth: 1,
       borderColor: theme.colors.border,
-      borderRadius: 8,
+      backgroundColor: theme.colors.surface,
+      flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: 14,
-      backgroundColor: theme.colors.surface,
+      marginBottom: 24,
+      zIndex: 1
     },
     socialButtonText: {
       color: theme.colors.textPrimary,
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    facebookButton: {
-      backgroundColor: theme.colors.brandYellow,
-      borderColor: theme.colors.brandYellow,
-    },
-    facebookButtonText: {
-      color: theme.colors.white,
+      fontSize: 15,
+      fontWeight: '700',
     },
     footer: {
       flexDirection: 'row',
       justifyContent: 'center',
-      paddingBottom: 28,
+      marginBottom: 145,
+      zIndex: 1
     },
     footerText: {
       color: theme.colors.textSecondary,
@@ -184,8 +262,19 @@ function makeStyles(theme: AppTheme) {
     },
     footerLink: {
       color: theme.colors.brandBlue,
-      fontSize: 15,
+      fontSize: 14,
       fontWeight: '700',
+    },
+    backgroundImage: {
+      position: 'absolute',
+      bottom: -45,
+      left: 0,
+      right: 0,
+      width: '100%',
+      height: 300,
+      resizeMode: 'cover',
+      opacity: 0.28,
+      zIndex: 0,
     },
   });
 }

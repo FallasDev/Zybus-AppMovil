@@ -1,153 +1,259 @@
 import type { ReactElement } from 'react';
-import { useMemo } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
 import type { RootStackParamList } from '../../../navigation/types';
+import { Ionicons } from '@expo/vector-icons';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
 export function RegisterScreen({ navigation }: Props): ReactElement {
   const { theme } = useAppTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backText}>‹</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.title}>Registrar Cuenta</Text>
-
-      <Text style={styles.label}>Nombre Completo</Text>
-      <TextInput
-        placeholder="Su nombre completo"
-        placeholderTextColor={theme.colors.textSecondary}
-        style={styles.input}
-      />
-
-      <Text style={styles.label}>Email</Text>
-      <TextInput
-        placeholder="Su correo electrónico"
-        placeholderTextColor={theme.colors.textSecondary}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        style={styles.input}
-      />
-
-      <Text style={styles.label}>Número de Móvil</Text>
-      <TextInput
-        placeholder="Su número de móvil"
-        placeholderTextColor={theme.colors.textSecondary}
-        keyboardType="phone-pad"
-        style={styles.input}
-      />
-
-      <View style={styles.termsRow}>
-        <View style={styles.checkbox}>
-          <Text style={styles.checkboxText}>✓</Text>
-        </View>
-        <Text style={styles.termsText}>
-          Al crear una cuenta, aceptas nuestros{' '}
-          <Text style={styles.termsLink}>Términos y Condiciones</Text>
-        </Text>
-      </View>
-
-      <TouchableOpacity
-        activeOpacity={0.9}
-        style={styles.primaryButton}
-        onPress={() => navigation.navigate('Verification')}
-      >
-        <Text style={styles.primaryButtonText}>Registrar</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.orText}>O</Text>
-
-      <TouchableOpacity style={styles.socialButton}>
-        <Text style={styles.socialButtonText}>Inicia sesión con Google</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={[styles.socialButton, styles.facebookButton]}>
-        <Text style={[styles.socialButtonText, styles.facebookButtonText]}>
-          Inicia sesión con Facebook
-        </Text>
-      </TouchableOpacity>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>¿Ya tienes una cuenta? </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.footerLink}>Inicia sesión</Text>
+    <KeyboardAvoidingView
+      style={styles.keyboardView}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled">
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.backText}>‹</Text>
         </TouchableOpacity>
-      </View>
-    </View>
+
+        <View style={styles.logoBox}>
+          <Image
+            source={require('../../../shared/assets/images/ZybusLogo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"/>
+        </View>
+
+        <Text style={styles.title}>Crea tu cuenta</Text>
+        <Text style={styles.subtitle}>Completa tus datos para registrarte</Text>
+
+        <View style={styles.row}>
+          <View style={styles.halfField}>
+            <Text style={styles.label}>Nombre</Text>
+            <TextInput
+              placeholder="Tu nombre"
+              placeholderTextColor={theme.colors.textSecondary}
+              style={styles.input} />
+          </View>
+
+          <View style={styles.halfField}>
+            <Text style={styles.label}>Primer apellido</Text>
+            <TextInput
+              placeholder="Primer apellido"
+              placeholderTextColor={theme.colors.textSecondary}
+              style={styles.input} />
+          </View>
+        </View>
+
+        <Text style={styles.label}>Segundo apellido</Text>
+        <TextInput
+          placeholder="Segundo apellido"
+          placeholderTextColor={theme.colors.textSecondary}
+          style={styles.input} />
+
+        <Text style={styles.label}>Correo electrónico</Text>
+        <TextInput
+          placeholder="Tu correo electrónico"
+          placeholderTextColor={theme.colors.textSecondary}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          style={styles.input} />
+
+        <Text style={styles.label}>Teléfono</Text>
+        <TextInput
+          placeholder="Tu número de teléfono"
+          placeholderTextColor={theme.colors.textSecondary}
+          keyboardType="phone-pad"
+          style={styles.input} />
+
+          
+        <Text style={styles.label}>Número de identificación</Text>
+        <TextInput
+          placeholder="Tu número de identificación"
+          placeholderTextColor={theme.colors.textSecondary}
+          keyboardType="number-pad"
+          style={styles.input} />
+
+        <Text style={styles.label}>Contraseña</Text>
+        <View style={styles.passwordRow}>
+          <TextInput
+            placeholder="Crea una contraseña"
+            placeholderTextColor={theme.colors.textSecondary}
+            secureTextEntry={!showPassword}
+            style={[styles.input, styles.passwordField]}/>
+
+          <TouchableOpacity
+            style={styles.eyeButton}
+            onPress={() => setShowPassword(!showPassword)}>
+            <Ionicons
+              name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+              size={22}
+              color={theme.colors.textSecondary}/>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.label}>Confirmar contraseña</Text>
+        <View style={styles.passwordRow}>
+          <TextInput
+            placeholder="Confirma tu contraseña"
+            placeholderTextColor={theme.colors.textSecondary}
+            secureTextEntry={!showConfirmPassword}
+            style={[styles.input, styles.passwordField]}/>
+
+          <TouchableOpacity
+            style={styles.eyeButton}
+            onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+            <Ionicons
+              name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+              size={22}
+              color={theme.colors.textSecondary}/>
+          </TouchableOpacity>
+        </View>
+
+
+        <View style={styles.termsRow}>
+          <View style={styles.checkbox} />
+          <Text style={styles.termsText}>
+            Acepto los <Text style={styles.termsLink}>Términos y Condiciones</Text> y la{' '}
+            <Text style={styles.termsLink}>Política de Privacidad</Text>
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={styles.primaryButton}
+          onPress={() => navigation.navigate('Verification')}>
+          <Text style={styles.primaryButtonText}>Crear cuenta</Text>
+        </TouchableOpacity>
+
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>¿Ya tienes una cuenta? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.footerLink}>Inicia sesión</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 function makeStyles(theme: AppTheme) {
   return StyleSheet.create({
-    container: {
+    keyboardView: {
       flex: 1,
+      backgroundColor: theme.colors.surface,
+    },
+    scrollContent: {
+      flexGrow: 1,
       backgroundColor: theme.colors.surface,
       paddingHorizontal: 24,
       paddingTop: 48,
+      paddingBottom: 28,
     },
     backButton: {
-      width: 38,
-      height: 38,
-      borderRadius: 19,
+      width: 42,
+      height: 42,
+      borderRadius: 14,
       backgroundColor: theme.colors.surfaceAlt,
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: 10,
+      marginBottom: 18,
     },
     backText: {
-      fontSize: 26,
+      fontSize: 30,
       color: theme.colors.textPrimary,
-      marginTop: -2,
+      marginTop: -3,
+    },
+    logoBox: {
+      alignSelf: 'center',
+      width: 120,
+      height: 80,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 8,
+    },
+    logoImage: {
+      width: 170,
+      height: 170,
     },
     title: {
-      fontSize: 20,
-      fontWeight: '700',
+      fontSize: 26,
+      fontWeight: '800',
       color: theme.colors.textPrimary,
       textAlign: 'center',
+      marginTop: 4,
+      marginBottom: 8,
+    },
+    subtitle: {
+      fontSize: 15,
+      color: theme.colors.textSecondary,
+      textAlign: 'center',
       marginBottom: 26,
+      fontWeight: '500',
+    },
+    row: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    halfField: {
+      flex: 1,
     },
     label: {
-      fontSize: 15,
-      fontWeight: '600',
+      fontSize: 14,
+      fontWeight: '700',
       color: theme.colors.textPrimary,
       marginBottom: 8,
-      marginTop: 6,
+      marginTop: 4,
     },
     input: {
       height: 54,
-      backgroundColor: theme.colors.inputBackground,
-      borderRadius: 8,
+      backgroundColor: theme.colors.surface,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
       paddingHorizontal: 16,
       fontSize: 15,
       color: theme.colors.textPrimary,
-      marginBottom: 10,
+      marginBottom: 14,
+    },
+    passwordRow: {
+      position: 'relative',
+    },
+
+    passwordField: {
+      paddingRight: 48,
+    },
+
+    eyeButton: {
+      position: 'absolute',
+      right: 16,
+      top: 16,
     },
     termsRow: {
       flexDirection: 'row',
       alignItems: 'flex-start',
-      marginVertical: 10,
+      marginTop: 4,
+      marginBottom: 20,
     },
     checkbox: {
-      width: 18,
-      height: 18,
-      borderRadius: 4,
-      backgroundColor: theme.colors.brandBlue,
-      alignItems: 'center',
-      justifyContent: 'center',
+      width: 22,
+      height: 22,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
       marginRight: 10,
-      marginTop: 2,
-    },
-    checkboxText: {
-      color: theme.colors.white,
-      fontSize: 12,
-      fontWeight: '700',
+      marginTop: 1,
+      backgroundColor: theme.colors.surface,
     },
     termsText: {
       flex: 1,
@@ -162,52 +268,21 @@ function makeStyles(theme: AppTheme) {
     primaryButton: {
       height: 56,
       backgroundColor: theme.colors.brandBlue,
-      borderRadius: 6,
+      borderRadius: 12,
       alignItems: 'center',
       justifyContent: 'center',
-      marginTop: 6,
-      marginBottom: 22,
+      marginTop: 4,
+      marginBottom: 26,
     },
     primaryButtonText: {
       color: theme.colors.white,
       fontSize: 18,
-      fontWeight: '700',
-    },
-    orText: {
-      textAlign: 'center',
-      color: theme.colors.textSecondary,
-      fontSize: 16,
-      fontWeight: '700',
-      marginBottom: 18,
-    },
-    socialButton: {
-      height: 54,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      borderRadius: 6,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: 14,
-      backgroundColor: theme.colors.surface,
-    },
-    socialButtonText: {
-      color: theme.colors.textPrimary,
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    facebookButton: {
-      backgroundColor: theme.colors.brandYellow,
-      borderColor: theme.colors.brandYellow,
-    },
-    facebookButtonText: {
-      color: theme.colors.white,
+      fontWeight: '800',
     },
     footer: {
       flexDirection: 'row',
       justifyContent: 'center',
       marginTop: 'auto',
-      paddingBottom: 28,
     },
     footerText: {
       color: theme.colors.textSecondary,
@@ -216,7 +291,7 @@ function makeStyles(theme: AppTheme) {
     footerLink: {
       color: theme.colors.brandBlue,
       fontSize: 15,
-      fontWeight: '700',
+      fontWeight: '800',
     },
   });
 }
