@@ -31,6 +31,7 @@ export interface TripDetailResponseDTO {
   license_plate: string;
   bus_type_name: string;
   capacity: number;
+  uses_seats: boolean;
 }
 
 export const toTripStopDTO = (stop: TripStop): TripStopDTO => ({
@@ -64,4 +65,5 @@ export const toTripDetailResponseDTO = (detail: TripDetail): TripDetailResponseD
   license_plate: detail.bus.licensePlate,
   bus_type_name: detail.bus.typeName,
   capacity: detail.bus.capacity,
+  uses_seats: detail.bus.usesSeats,
 });

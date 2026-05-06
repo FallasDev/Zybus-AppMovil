@@ -10,9 +10,11 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
 import type { TripSearchFormData, StopOption } from '../models/trip-search.model';
@@ -58,7 +60,9 @@ export function TripSearchForm({
   onSubmit,
 }: TripSearchFormProps): ReactElement {
   const { theme } = useAppTheme();
-  const styles = useMemo(() => makeStyles(theme), [theme]);
+  const { width: windowWidth } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const styles = useMemo(() => makeStyles(theme, windowWidth, insets.bottom), [theme, windowWidth, insets.bottom]);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -231,7 +235,7 @@ export function TripSearchForm({
   );
 }
 
-function makeStyles(theme: AppTheme) {
+function makeStyles(theme: AppTheme, windowWidth: number, bottomInset: number) {
   return StyleSheet.create({
     container: {
       gap: 0,
@@ -409,7 +413,7 @@ function makeStyles(theme: AppTheme) {
       backgroundColor: theme.colors.surface,
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
-      paddingBottom: 32,
+      paddingBottom: Math.max(bottomInset, 16) + 16,
     },
     modalHeader: {
       flexDirection: 'row',
@@ -430,7 +434,8 @@ function makeStyles(theme: AppTheme) {
       fontWeight: '600',
     },
     inlinePicker: {
-      alignSelf: 'stretch',
+      width: windowWidth,
+      height: 340,
     },
     stopItem: {
       flexDirection: 'row',

@@ -33,5 +33,6 @@ export const mapTripDetailFromDTO = (dto: TripDetailResponseDTO): TripDetail => 
     licensePlate: dto.license_plate,
     typeName: dto.bus_type_name,
     capacity: dto.capacity,
+    usesSeats: dto.uses_seats,
   },
 });

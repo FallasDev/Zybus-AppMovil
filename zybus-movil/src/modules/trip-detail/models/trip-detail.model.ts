@@ -29,6 +29,7 @@ export interface TripBus {
   licensePlate: string;
   typeName: string;
   capacity: number;
+  usesSeats: boolean;
 }
 
 export interface TripDetail {
