@@ -10,6 +10,7 @@ import { SearchResultsScreen, TripSearchProvider } from '../modules/trip-search'
 import { TripDetailScreen, TripDetailProvider } from '../modules/trip-detail';
 import { SeatSelectionScreen, SeatSelectionProvider } from '../modules/seat-selection';
 import { NotificationsScreen, NotificationsProvider } from '../modules/notifications';
+import { PurchaseSummaryView, PaymentMethodView, PaymentConfirmationView, DigitalTicketView,} from '../modules/purchase-payment';
 import { MainTabs } from './MainTabs';
 import type { RootStackParamList } from './types';
 
@@ -35,6 +36,10 @@ export const AppNavigator = (): ReactElement => {
               <Stack.Screen name="SearchResults" component={SearchResultsScreen} />
               <Stack.Screen name="TripDetail" component={TripDetailScreen} />
               <Stack.Screen name="SeatSelection" component={SeatSelectionScreen} />
+              <Stack.Screen name="PurchaseSummary" component={PurchaseSummaryView} />
+              <Stack.Screen name="PaymentMethod" component={PaymentMethodView} />
+              <Stack.Screen name="PaymentConfirmation" component={PaymentConfirmationView} />
+              <Stack.Screen name="DigitalTicket" component={DigitalTicketView} />
               <Stack.Screen name="Notifications" component={NotificationsScreen} />
             </Stack.Navigator>
           </SeatSelectionProvider>

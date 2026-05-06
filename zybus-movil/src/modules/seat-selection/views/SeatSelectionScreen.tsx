@@ -75,7 +75,7 @@ export function SeatSelectionScreen(): ReactElement {
     Alert.alert(
       'Asientos confirmados',
       `Asientos: ${selectedSeats.map((s: SelectedSeat) => s.seatCode).join(', ')}. ¡Listo para continuar!`,
-      [{ text: 'OK', onPress: () => navigation.navigate('MainTabs') }]
+      [{ text: 'OK', onPress: () => navigation.navigate('PurchaseSummary', { tripId: tripId, passengers: initialPassengers, selectedSeats }) }]
     );
   };
 

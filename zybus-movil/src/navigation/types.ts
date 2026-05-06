@@ -1,3 +1,5 @@
+import { SelectedSeat } from "../modules/seat-selection/models/seat-selection.model";
+
 export type RootStackParamList = {
   Onboarding: undefined;
   Login: undefined;
@@ -13,4 +15,9 @@ export type RootStackParamList = {
   TripDetail: { tripId: string; passengers: number };
   SeatSelection: { tripId: string; passengers: number };
   Notifications: undefined;
+  PurchaseSummary: { tripId: string; passengers: number; selectedSeats: SelectedSeat[];};
+  PaymentMethod: { purchaseData: any;};
+  PaymentConfirmation: { purchaseData: any; paymentMethod: string; paymentStatus: 'approved' | 'rejected'; confirmationNumber: string;
+};
+  DigitalTicket: { purchaseData: any; confirmationNumber: string;};
 };
