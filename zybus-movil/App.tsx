@@ -7,6 +7,7 @@ import { TicketsProvider } from './src/modules/tickets';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { ThemeProvider } from './src/shared/providers';
 import { useAppTheme } from './src/shared/hooks';
+import { AuthProvider } from './src/modules/auth/store/auth.store';
 
 function AppContent(): ReactElement {
   const { mode } = useAppTheme();
@@ -23,11 +24,13 @@ export default function App(): ReactElement {
     <SafeAreaProvider>
       <View style={styles.container}>
         <ThemeProvider>
+          <AuthProvider>
           <UsersProvider>
             <TicketsProvider>
               <AppContent />
             </TicketsProvider>
           </UsersProvider>
+          </AuthProvider>
         </ThemeProvider>
       </View>
     </SafeAreaProvider>

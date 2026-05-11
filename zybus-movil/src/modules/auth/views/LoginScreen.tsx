@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
@@ -13,6 +14,11 @@ export function LoginScreen({ navigation }: Props): ReactElement {
   const { theme } = useAppTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
   const [showPassword, setShowPassword] = useState(false);
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const { handleLogin, isLoading, error } = useAuth();
 
   return (
     <View style={styles.container}>
@@ -39,6 +45,10 @@ export function LoginScreen({ navigation }: Props): ReactElement {
           <TextInput
             placeholder="Su correo electrónico"
             placeholderTextColor={theme.colors.textSecondary}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
             style={[styles.input, styles.inputWithLeftIcon]}
           />
         </View>
@@ -56,6 +66,8 @@ export function LoginScreen({ navigation }: Props): ReactElement {
             placeholder="Tu contraseña"
             placeholderTextColor={theme.colors.textSecondary}
             secureTextEntry={!showPassword}
+            value={password}
+            onChangeText={setPassword}
             style={[styles.input, styles.inputWithBothIcons]} />
 
           <TouchableOpacity
@@ -72,6 +84,26 @@ export function LoginScreen({ navigation }: Props): ReactElement {
           <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
         </TouchableOpacity>
 
+        {error && <Text style={styles.errorText}>{error}</Text>}
+
+        <TouchableOpacity
+          style={styles.primaryButton}
+          disabled={isLoading}
+          onPress={async () => {
+            const success = await handleLogin({
+              email,
+              password,
+            });
+
+            if (success) {
+              navigation.navigate('MainTabs');
+            }
+          }}>
+          <Text style={styles.primaryButtonText}>
+            {isLoading ? 'Ingresando...' : 'Inicia Sesión'}
+          </Text>
+        </TouchableOpacity>
+
         <View style={styles.divider}>
           <View style={styles.line} />
           <Text style={styles.dividerText}>o</Text>
@@ -82,14 +114,12 @@ export function LoginScreen({ navigation }: Props): ReactElement {
           <Text style={styles.socialButtonText}>Continuar con Google</Text>
         </TouchableOpacity>
 
-
-      </View>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>No tienes cuenta? </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-          <Text style={styles.footerLink}>Registra ahora</Text>
-        </TouchableOpacity>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>No tienes cuenta? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <Text style={styles.footerLink}>Registra ahora</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View pointerEvents="none">
@@ -98,11 +128,7 @@ export function LoginScreen({ navigation }: Props): ReactElement {
           style={styles.backgroundImage}
         />
       </View>
-
     </View>
-
-
-
   );
 }
 
@@ -212,6 +238,12 @@ function makeStyles(theme: AppTheme) {
       fontSize: 14,
       fontWeight: '600',
     },
+    errorText: {
+      color: '#D32F2F',
+      fontSize: 13,
+      fontWeight: '600',
+      marginBottom: 14,
+    },
     primaryButton: {
       height: 58,
       backgroundColor: theme.colors.brandBlue,
@@ -242,7 +274,7 @@ function makeStyles(theme: AppTheme) {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: 24,
+      marginBottom: 28,
       zIndex: 1
     },
     socialButtonText: {
@@ -253,7 +285,7 @@ function makeStyles(theme: AppTheme) {
     footer: {
       flexDirection: 'row',
       justifyContent: 'center',
-      marginBottom: 145,
+      marginBottom: 120,
       zIndex: 1
     },
     footerText: {

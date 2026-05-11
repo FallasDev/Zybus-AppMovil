@@ -35,9 +35,9 @@ export function AccountScreen(): ReactElement {
   const options: AccountOption[] = [
     {
       id: 'profile',
-      label: 'Perfil y Contraseña',
+      label: 'Perfil',
       icon: 'person-circle-outline',
-      onPress: placeholder('Perfil y Contraseña'),
+      onPress: () => navigation.navigate('Profile'),
     },
     {
       id: 'tickets',

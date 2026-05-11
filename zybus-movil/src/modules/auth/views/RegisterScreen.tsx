@@ -1,11 +1,12 @@
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
 import type { RootStackParamList } from '../../../navigation/types';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../hooks/useAuth';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
@@ -14,6 +15,18 @@ export function RegisterScreen({ navigation }: Props): ReactElement {
   const styles = useMemo(() => makeStyles(theme), [theme]);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [step, setStep] = useState(1);
+
+  const [firstName, setFirstName] = useState('');
+  const [lastName1, setLastName1] = useState('');
+  const [lastName2, setLastName2] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [identificationNumber, setIdentificationNumber] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const { handleRegister, isLoading, error } = useAuth();
 
   return (
     <KeyboardAvoidingView
@@ -31,110 +44,181 @@ export function RegisterScreen({ navigation }: Props): ReactElement {
           <Image
             source={require('../../../shared/assets/images/ZybusLogo.png')}
             style={styles.logoImage}
-            resizeMode="contain"/>
+            resizeMode="contain"
+          />
         </View>
 
         <Text style={styles.title}>Crea tu cuenta</Text>
-        <Text style={styles.subtitle}>Completa tus datos para registrarte</Text>
+        <Text style={styles.subtitle}>
+          {step === 1 ? 'Paso 1 de 2: Datos personales' : 'Paso 2 de 2: Contacto y seguridad'}
+        </Text>
 
-        <View style={styles.row}>
-          <View style={styles.halfField}>
-            <Text style={styles.label}>Nombre</Text>
+        <View style={styles.stepIndicator}>
+          <View style={[styles.stepLine, step >= 1 && styles.stepLineActive]} />
+          <View style={[styles.stepLine, step === 2 && styles.stepLineActive]} />
+        </View>
+
+        {step === 1 && (
+          <>
+            <View style={styles.row}>
+              <View style={styles.halfField}>
+                <Text style={styles.label}>Nombre</Text>
+                <TextInput
+                  placeholder="Tu nombre"
+                  placeholderTextColor={theme.colors.textSecondary}
+                  value={firstName}
+                  onChangeText={setFirstName}
+                  style={styles.input}
+                />
+              </View>
+
+              <View style={styles.halfField}>
+                <Text style={styles.label}>Primer apellido</Text>
+                <TextInput
+                  placeholder="Primer apellido"
+                  placeholderTextColor={theme.colors.textSecondary}
+                  value={lastName1}
+                  onChangeText={setLastName1}
+                  style={styles.input}
+                />
+              </View>
+            </View>
+
+            <Text style={styles.label}>Segundo apellido</Text>
             <TextInput
-              placeholder="Tu nombre"
+              placeholder="Segundo apellido"
               placeholderTextColor={theme.colors.textSecondary}
-              style={styles.input} />
-          </View>
+              value={lastName2}
+              onChangeText={setLastName2}
+              style={styles.input}
+            />
 
-          <View style={styles.halfField}>
-            <Text style={styles.label}>Primer apellido</Text>
+            <Text style={styles.label}>Número de identificación</Text>
             <TextInput
-              placeholder="Primer apellido"
+              placeholder="Tu número de identificación"
               placeholderTextColor={theme.colors.textSecondary}
-              style={styles.input} />
-          </View>
-        </View>
+              keyboardType="number-pad"
+              value={identificationNumber}
+              onChangeText={setIdentificationNumber}
+              style={styles.input}
+            />
+          </>
+        )}
 
-        <Text style={styles.label}>Segundo apellido</Text>
-        <TextInput
-          placeholder="Segundo apellido"
-          placeholderTextColor={theme.colors.textSecondary}
-          style={styles.input} />
+        {step === 2 && (
+          <>
+            <Text style={styles.label}>Correo electrónico</Text>
+            <TextInput
+              placeholder="Tu correo electrónico"
+              placeholderTextColor={theme.colors.textSecondary}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+              style={styles.input}
+            />
 
-        <Text style={styles.label}>Correo electrónico</Text>
-        <TextInput
-          placeholder="Tu correo electrónico"
-          placeholderTextColor={theme.colors.textSecondary}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          style={styles.input} />
+            <Text style={styles.label}>Teléfono</Text>
+            <TextInput
+              placeholder="Tu número de teléfono"
+              placeholderTextColor={theme.colors.textSecondary}
+              keyboardType="phone-pad"
+              value={phone}
+              onChangeText={setPhone}
+              style={styles.input}
+            />
 
-        <Text style={styles.label}>Teléfono</Text>
-        <TextInput
-          placeholder="Tu número de teléfono"
-          placeholderTextColor={theme.colors.textSecondary}
-          keyboardType="phone-pad"
-          style={styles.input} />
+            <Text style={styles.label}>Contraseña</Text>
+            <View style={styles.passwordRow}>
+              <TextInput
+                placeholder="Crea una contraseña"
+                placeholderTextColor={theme.colors.textSecondary}
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+                style={[styles.input, styles.passwordField]}
+              />
 
-          
-        <Text style={styles.label}>Número de identificación</Text>
-        <TextInput
-          placeholder="Tu número de identificación"
-          placeholderTextColor={theme.colors.textSecondary}
-          keyboardType="number-pad"
-          style={styles.input} />
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowPassword(!showPassword)}>
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={22}
+                  color={theme.colors.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
 
-        <Text style={styles.label}>Contraseña</Text>
-        <View style={styles.passwordRow}>
-          <TextInput
-            placeholder="Crea una contraseña"
-            placeholderTextColor={theme.colors.textSecondary}
-            secureTextEntry={!showPassword}
-            style={[styles.input, styles.passwordField]}/>
+            <Text style={styles.label}>Confirmar contraseña</Text>
+            <View style={styles.passwordRow}>
+              <TextInput
+                placeholder="Confirma tu contraseña"
+                placeholderTextColor={theme.colors.textSecondary}
+                secureTextEntry={!showConfirmPassword}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                style={[styles.input, styles.passwordField]}
+              />
 
-          <TouchableOpacity
-            style={styles.eyeButton}
-            onPress={() => setShowPassword(!showPassword)}>
-            <Ionicons
-              name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-              size={22}
-              color={theme.colors.textSecondary}/>
-          </TouchableOpacity>
-        </View>
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                <Ionicons
+                  name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={22}
+                  color={theme.colors.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
 
-        <Text style={styles.label}>Confirmar contraseña</Text>
-        <View style={styles.passwordRow}>
-          <TextInput
-            placeholder="Confirma tu contraseña"
-            placeholderTextColor={theme.colors.textSecondary}
-            secureTextEntry={!showConfirmPassword}
-            style={[styles.input, styles.passwordField]}/>
+            <View style={styles.termsRow}>
+              <View style={styles.checkbox} />
+              <Text style={styles.termsText}>
+                Acepto los <Text style={styles.termsLink}>Términos y Condiciones</Text> y la{' '}
+                <Text style={styles.termsLink}>Política de Privacidad</Text>
+              </Text>
+            </View>
+          </>
+        )}
 
-          <TouchableOpacity
-            style={styles.eyeButton}
-            onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-            <Ionicons
-              name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
-              size={22}
-              color={theme.colors.textSecondary}/>
-          </TouchableOpacity>
-        </View>
-
-
-        <View style={styles.termsRow}>
-          <View style={styles.checkbox} />
-          <Text style={styles.termsText}>
-            Acepto los <Text style={styles.termsLink}>Términos y Condiciones</Text> y la{' '}
-            <Text style={styles.termsLink}>Política de Privacidad</Text>
-          </Text>
-        </View>
+        {error && <Text style={styles.errorText}>{error}</Text>}
 
         <TouchableOpacity
           activeOpacity={0.9}
           style={styles.primaryButton}
-          onPress={() => navigation.navigate('Verification')}>
-          <Text style={styles.primaryButtonText}>Crear cuenta</Text>
+          disabled={isLoading}
+          onPress={async () => {
+            if (step === 1) {
+              setStep(2);
+              return;
+            }
+
+            const success = await handleRegister({
+              firstName,
+              lastName1,
+              lastName2,
+              email,
+              phone,
+              identificationNumber,
+              password,
+              confirmPassword,
+            });
+
+            if (success) {
+              navigation.navigate('Verification');
+            }
+          }}>
+          <Text style={styles.primaryButtonText}>
+            {isLoading ? 'Creando cuenta...' : step === 1 ? 'Continuar' : 'Crear cuenta'}
+          </Text>
         </TouchableOpacity>
+
+        {step === 2 && (
+          <TouchableOpacity style={styles.secondaryButton} onPress={() => setStep(1)}>
+            <Text style={styles.secondaryButtonText}>Volver</Text>
+          </TouchableOpacity>
+        )}
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>¿Ya tienes una cuenta? </Text>
@@ -198,8 +282,22 @@ function makeStyles(theme: AppTheme) {
       fontSize: 15,
       color: theme.colors.textSecondary,
       textAlign: 'center',
-      marginBottom: 26,
+      marginBottom: 18,
       fontWeight: '500',
+    },
+    stepIndicator: {
+      flexDirection: 'row',
+      gap: 10,
+      marginBottom: 24,
+    },
+    stepLine: {
+      flex: 1,
+      height: 5,
+      borderRadius: 10,
+      backgroundColor: theme.colors.border,
+    },
+    stepLineActive: {
+      backgroundColor: theme.colors.brandBlue,
     },
     row: {
       flexDirection: 'row',
@@ -229,11 +327,9 @@ function makeStyles(theme: AppTheme) {
     passwordRow: {
       position: 'relative',
     },
-
     passwordField: {
       paddingRight: 48,
     },
-
     eyeButton: {
       position: 'absolute',
       right: 16,
@@ -265,6 +361,12 @@ function makeStyles(theme: AppTheme) {
       color: theme.colors.brandBlue,
       fontWeight: '700',
     },
+    errorText: {
+      color: '#D32F2F',
+      fontSize: 13,
+      fontWeight: '600',
+      marginBottom: 14,
+    },
     primaryButton: {
       height: 56,
       backgroundColor: theme.colors.brandBlue,
@@ -272,12 +374,21 @@ function makeStyles(theme: AppTheme) {
       alignItems: 'center',
       justifyContent: 'center',
       marginTop: 4,
-      marginBottom: 26,
+      marginBottom: 18,
     },
     primaryButtonText: {
       color: theme.colors.white,
       fontSize: 18,
       fontWeight: '800',
+    },
+    secondaryButton: {
+      alignItems: 'center',
+      marginBottom: 18,
+    },
+    secondaryButtonText: {
+      color: theme.colors.brandBlue,
+      fontSize: 15,
+      fontWeight: '700',
     },
     footer: {
       flexDirection: 'row',
