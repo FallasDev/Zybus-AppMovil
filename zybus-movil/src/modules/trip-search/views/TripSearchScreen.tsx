@@ -39,7 +39,7 @@ export function TripSearchScreen(): ReactElement {
     setFormData((prev) => {
       const updated = { ...prev, [field]: value };
       
-      // Si adultosMayores cambió, ajustar el array de identificaciones
+     
       if (field === 'adultosMayores') {
         const newCount = (value as number) || 0;
         const current = updated.identificaciones || [];
@@ -50,7 +50,7 @@ export function TripSearchScreen(): ReactElement {
         }
       }
       
-      // Mantener passengers sincronizado con normales + adultosMayores
+     
       if (field === 'normales' || field === 'adultosMayores') {
         updated.passengers = (updated.normales || 0) + (updated.adultosMayores || 0);
       }

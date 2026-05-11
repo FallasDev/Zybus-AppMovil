@@ -12,5 +12,6 @@ export type RootStackParamList = {
   SearchResults: { originStopId: string; destinationStopId: string; date: string; passengers: number };
   TripDetail: { tripId: string; passengers: number };
   SeatSelection: { tripId: string; passengers: number };
+  TripTracking: { tripId: string };
   Notifications: undefined;
 };

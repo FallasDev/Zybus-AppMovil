@@ -4,6 +4,7 @@ import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { ActiveTripCard } from '../components/ActiveTripCard';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
 import type { RootStackParamList } from '../../../navigation/types';
@@ -91,6 +92,14 @@ export function HomeScreen(): ReactElement {
 
       {/* Saludo */}
       <Text style={styles.greeting}>¿A dónde vas hoy?</Text>
+
+      {/* Viaje activo (mock) */}
+      <ActiveTripCard
+        tripId="t_1"
+        routeName="San José – Alajuela Expreso"
+        etaMinutes={35}
+        onPress={() => navigation.navigate('TripTracking', { tripId: 't_1' })}
+      />
 
       {/* Formulario de búsqueda */}
       <View style={styles.searchSection}>

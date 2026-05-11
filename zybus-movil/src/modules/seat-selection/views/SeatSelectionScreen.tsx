@@ -110,7 +110,7 @@ export function SeatSelectionScreen(): ReactElement {
         </View>
       ) : (
         <>
-          {/* Selector de cantidad de pasajeros */}
+          
           <SeatLegend />
           <View style={styles.mapWrapper}>
             <SeatMap
