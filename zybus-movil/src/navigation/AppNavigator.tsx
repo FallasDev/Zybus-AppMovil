@@ -10,7 +10,7 @@ import { SearchResultsScreen, TripSearchProvider } from '../modules/trip-search'
 import { TripDetailScreen, TripDetailProvider } from '../modules/trip-detail';
 import { SeatSelectionScreen, SeatSelectionProvider } from '../modules/seat-selection';
 import { NotificationsScreen, NotificationsProvider } from '../modules/notifications';
-import { PurchaseSummaryView, PaymentMethodView, PaymentConfirmationView, DigitalTicketView,} from '../modules/purchase-payment';
+import { PurchaseSummaryView, PaymentMethodView, PaymentConfirmationView, DigitalTicketView,PurchasePaymentProvider} from '../modules/purchase-payment';
 import { MainTabs } from './MainTabs';
 import type { RootStackParamList } from './types';
 
@@ -23,10 +23,11 @@ export const AppNavigator = (): ReactElement => {
       <TripSearchProvider>
         <TripDetailProvider>
           <SeatSelectionProvider>
-            <Stack.Navigator initialRouteName="Onboarding" screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-              <Stack.Screen name="Login" component={LoginScreen} />
-              <Stack.Screen name="Register" component={RegisterScreen} />
+            <PurchasePaymentProvider>
+              <Stack.Navigator initialRouteName="Onboarding" screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+                <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen name="Register" component={RegisterScreen} />
               <Stack.Screen name="Verification" component={VerificationScreen} />
               <Stack.Screen name="MainTabs" component={MainTabs} />
               <Stack.Screen name="AddDestination" component={AddDestinationScreen} />
@@ -42,6 +43,7 @@ export const AppNavigator = (): ReactElement => {
               <Stack.Screen name="DigitalTicket" component={DigitalTicketView} />
               <Stack.Screen name="Notifications" component={NotificationsScreen} />
             </Stack.Navigator>
+            </PurchasePaymentProvider>
           </SeatSelectionProvider>
         </TripDetailProvider>
       </TripSearchProvider>

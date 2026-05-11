@@ -1,30 +1,49 @@
-export type PaymentStatus = 'approved' | 'rejected';
+export interface PurchasePayment {
+  id: string;
+  ticketId: string;
+  title: string;
+  route: string;
+  seatNumber: string;
+  ownerUserId: string;
+  paymentMethodId: number;
+  total: number;
+  paymentStatus: string;
+  salesChannelId: number;
+  purchaseDate: string;
+}
 
-export type PaymentMethodLabel = 'Tarjeta' | 'SINPE Móvil' | 'Transferencia';
+export interface PurchasePaymentFormData {
+  ticketId: string;
+  title: string;
+  route: string;
+  seatNumber: string;
+  ownerUserId: string;
+  paymentMethodId: number;
+  total: number;
+}
 
-export type PurchaseData = {
-  passengerName: string;
-  passengerId: string;
-  seat: string;
-  finalPrice: number;
-  origin: string;
-  destination: string;
-  date: string;
-  time: string;
-};
-
-export type PaymentResult = {
-  status: PaymentStatus;
-  confirmationNumber?: string;
-};
-
-export type PurchaseTicket = {
-  confirmationNumber: string;
-  passengerName: string;
-  seat: string;
-  origin: string;
-  destination: string;
-  date: string;
-  time: string;
-  qrCode?: string;
-};
+export const createPurchasePaymentModel = ({
+  id,
+  ticketId,
+  title,
+  route,
+  seatNumber,
+  ownerUserId,
+  paymentMethodId,
+  total,
+  paymentStatus,
+  salesChannelId,
+  purchaseDate,
+}: PurchasePayment): PurchasePayment => ({
+  id,
+  ticketId,
+  title,
+  route,
+  seatNumber,
+  ownerUserId,
+  paymentMethodId,
+  total,
+  paymentStatus,
+  salesChannelId,
+  purchaseDate,
+});

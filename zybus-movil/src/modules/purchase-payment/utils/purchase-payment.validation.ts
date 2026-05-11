@@ -3,54 +3,80 @@ import {
   PURCHASE_PAYMENT_ERRORS,
   type PurchasePaymentErrorCode,
 } from '../constants/purchase-payment.constants';
-import type { PurchaseData } from '../models/purchase-payment.model';
 
-export const validatePurchaseData = (
-  purchaseData: PurchaseData
-): PurchasePaymentErrorCode | null => {
-  if (!purchaseData.passengerName.trim()) return PURCHASE_PAYMENT_ERRORS.PASSENGER_NAME_REQUIRED;
-  if (!purchaseData.passengerId.trim()) return PURCHASE_PAYMENT_ERRORS.PASSENGER_ID_REQUIRED;
-  if (!purchaseData.seat.trim()) return PURCHASE_PAYMENT_ERRORS.SEAT_REQUIRED;
-  if (purchaseData.finalPrice <= 0) return PURCHASE_PAYMENT_ERRORS.INVALID_TOTAL;
-  if (!purchaseData.origin.trim()) return PURCHASE_PAYMENT_ERRORS.ORIGIN_REQUIRED;
-  if (!purchaseData.destination.trim()) return PURCHASE_PAYMENT_ERRORS.DESTINATION_REQUIRED;
-  if (!purchaseData.date.trim()) return PURCHASE_PAYMENT_ERRORS.DATE_REQUIRED;
-  if (!purchaseData.time.trim()) return PURCHASE_PAYMENT_ERRORS.TIME_REQUIRED;
+import type { PurchasePaymentFormData } from '../models/purchase-payment.model';
+import type { Ticket } from '../../tickets/models/ticket.model';
 
-  return null;
+export const getPaymentMethodLabel = (paymentMethodId: number): string => {
+  const paymentMethod = PAYMENT_METHODS.find(
+    (method) => method.id === paymentMethodId
+  );
+
+  return paymentMethod?.label ?? 'Método desconocido';
 };
 
-export const validatePaymentMethod = (
-  paymentMethod: string
-): PurchasePaymentErrorCode | null => {
-  if (!paymentMethod.trim()) return PURCHASE_PAYMENT_ERRORS.PAYMENT_METHOD_REQUIRED;
-
-  const exists = PAYMENT_METHODS.some((method) => method.label === paymentMethod);
-
-  if (!exists) return PURCHASE_PAYMENT_ERRORS.INVALID_PAYMENT_METHOD;
-
-  return null;
+export const formatCurrency = (amount: number): string => {
+  return `₡${amount.toLocaleString('es-CR')}`;
 };
 
-export const getPurchasePaymentErrorMessage = (
-  errorCode: string
-): string => {
-  const messageMap: Record<PurchasePaymentErrorCode, string> = {
-    [PURCHASE_PAYMENT_ERRORS.PASSENGER_NAME_REQUIRED]: 'El nombre del pasajero es requerido.',
-    [PURCHASE_PAYMENT_ERRORS.PASSENGER_ID_REQUIRED]: 'La identificación del pasajero es requerida.',
-    [PURCHASE_PAYMENT_ERRORS.SEAT_REQUIRED]: 'Debes seleccionar un asiento.',
-    [PURCHASE_PAYMENT_ERRORS.INVALID_TOTAL]: 'El total de la compra es inválido.',
-    [PURCHASE_PAYMENT_ERRORS.ORIGIN_REQUIRED]: 'El origen del viaje es requerido.',
-    [PURCHASE_PAYMENT_ERRORS.DESTINATION_REQUIRED]: 'El destino del viaje es requerido.',
-    [PURCHASE_PAYMENT_ERRORS.DATE_REQUIRED]: 'La fecha del viaje es requerida.',
-    [PURCHASE_PAYMENT_ERRORS.TIME_REQUIRED]: 'La hora del viaje es requerida.',
-    [PURCHASE_PAYMENT_ERRORS.PAYMENT_METHOD_REQUIRED]: 'Selecciona un método de pago.',
-    [PURCHASE_PAYMENT_ERRORS.INVALID_PAYMENT_METHOD]: 'Método de pago inválido.',
-  };
+export const formatPurchaseDate = (date: string): string => {
+  return new Date(date).toLocaleDateString('es-CR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+};
 
-  if (errorCode in messageMap) {
-    return messageMap[errorCode as PurchasePaymentErrorCode];
+export const validatePurchasePaymentForm = (
+  data: PurchasePaymentFormData
+): PurchasePaymentErrorCode | null => {
+  if (!data.ticketId) {
+    return PURCHASE_PAYMENT_ERRORS.TICKET_REQUIRED;
   }
 
-  return 'Error inesperado.';
+  if (!data.route) {
+    return PURCHASE_PAYMENT_ERRORS.ROUTE_REQUIRED;
+  }
+
+  if (!data.seatNumber) {
+    return PURCHASE_PAYMENT_ERRORS.SEAT_REQUIRED;
+  }
+
+  if (!data.ownerUserId) {
+    return PURCHASE_PAYMENT_ERRORS.OWNER_USER_REQUIRED;
+  }
+
+  if (!data.total || data.total <= 0) {
+    return PURCHASE_PAYMENT_ERRORS.INVALID_TOTAL;
+  }
+
+  if (!data.paymentMethodId) {
+    return PURCHASE_PAYMENT_ERRORS.PAYMENT_METHOD_REQUIRED;
+  }
+
+  const paymentMethodExists = PAYMENT_METHODS.some(
+    (method) => method.id === data.paymentMethodId
+  );
+
+  if (!paymentMethodExists) {
+    return PURCHASE_PAYMENT_ERRORS.INVALID_PAYMENT_METHOD;
+  }
+
+  return null;
+};
+
+export const mapTicketToPurchaseFormData = (
+  ticket: Ticket,
+  paymentMethodId: number,
+  total: number
+): PurchasePaymentFormData => {
+  return {
+    ticketId: ticket.id,
+    title: ticket.title,
+    route: ticket.route,
+    seatNumber: ticket.seatNumber,
+    ownerUserId: ticket.ownerUserId,
+    paymentMethodId,
+    total,
+  };
 };

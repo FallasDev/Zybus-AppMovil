@@ -1,28 +1,38 @@
-import { SALES_CHANNEL } from '../constants/purchase-payment.constants';
-import type { CreatePurchaseRequestDto } from './purchase-payment.dto';
-import type { PurchaseData } from './purchase-payment.model';
+import { Purchase } from './purchase-payment.model';
+import { PurchaseDto } from './purchase-payment.dto';
 
-export const mapPaymentMethodToId = (paymentMethod: string): number => {
-  const map: Record<string, number> = {
-    Tarjeta: 1,
-    'SINPE Móvil': 2,
-    Transferencia: 3,
-  };
+export const fromDtoToPurchase = (
+  dto: PurchaseDto
+): Purchase => ({
+  id: dto.id,
+  userId: dto.user_id,
+  sellerUserId: dto.seller_user_id,
+  salesChannelId: dto.sales_channel_id,
+  paymentMethodId: dto.payment_method_id,
+  total: dto.total,
+  purchaseDate: dto.purchase_date,
+  notes: dto.notes,
+  stateId: dto.state_id,
+  isActive: dto.is_active,
+  createdAt: dto.created_at,
+  updatedAt: dto.updated_at,
+  deletedAt: dto.deleted_at,
+});
 
-  return map[paymentMethod] ?? 1;
-};
-
-export const mapPurchaseToCreatePurchaseDto = (
-  purchaseData: PurchaseData,
-  paymentMethod: string
-): CreatePurchaseRequestDto => {
-  return {
-    user_id: 1,
-    seller_user_id: null,
-    sales_channel_id: SALES_CHANNEL.APP,
-    payment_method_id: mapPaymentMethodToId(paymentMethod),
-    total: purchaseData.finalPrice,
-    notes: null,
-    state_id: 1,
-  };
-};
+export const fromPurchaseToDto = (
+  purchase: Purchase
+): PurchaseDto => ({
+  id: purchase.id,
+  user_id: purchase.userId,
+  seller_user_id: purchase.sellerUserId,
+  sales_channel_id: purchase.salesChannelId,
+  payment_method_id: purchase.paymentMethodId,
+  total: purchase.total,
+  purchase_date: purchase.purchaseDate,
+  notes: purchase.notes,
+  state_id: purchase.stateId,
+  is_active: purchase.isActive,
+  created_at: purchase.createdAt,
+  updated_at: purchase.updatedAt,
+  deleted_at: purchase.deletedAt,
+});

@@ -1,60 +1,55 @@
-import type {
-  CreatePurchaseRequestDto,
-  CreatePurchaseResponseDto,
-} from '../models/purchase-payment.dto';
-
-import type {
-  PaymentResult,
-} from '../models/purchase-payment.model';
+import {
+  PAYMENT_METHODS,
+  PAYMENT_STATUS,
+  SALES_CHANNEL,
+} from '../constants/purchase-payment.constants';
 
 import {
-  mapPurchaseToCreatePurchaseDto,
-} from '../models/purchase-payment.mapper';
+  PurchasePayment,
+  PurchasePaymentFormData,
+  createPurchasePaymentModel,
+} from '../models/purchase-payment.model';
 
-import type { PurchaseData } from '../models/purchase-payment.model';
+let purchases: PurchasePayment[] = [];
 
-// 🔥 Función principal del servicio
-export const createPurchase = async (
-  purchaseData: PurchaseData,
-  paymentMethod: string
-): Promise<PaymentResult> => {
-  const dto: CreatePurchaseRequestDto =
-    mapPurchaseToCreatePurchaseDto(purchaseData, paymentMethod);
+export const purchasePaymentService = {
+  getAll: (): PurchasePayment[] => {
+    return purchases;
+  },
 
-  // 🔥 SIMULACIÓN (por ahora)
-  const response = await fakeApiCall(dto);
+  getById: (id: string): PurchasePayment | undefined => {
+    return purchases.find((purchase) => purchase.id === id);
+  },
 
-  // 🔥 mapear respuesta backend → frontend
-  return {
-    status: response.status,
-    confirmationNumber: response.confirmation_number,
-  };
-};
+  create: (formData: PurchasePaymentFormData): PurchasePayment => {
+    const paymentMethodExists = PAYMENT_METHODS.some(
+      (method) => method.id === formData.paymentMethodId
+    );
 
+    if (!paymentMethodExists) {
+      throw new Error('INVALID_PAYMENT_METHOD');
+    }
 
+    const newPurchase = createPurchasePaymentModel({
+      id: Date.now().toString(),
+      ticketId: formData.ticketId,
+      title: formData.title,
+      route: formData.route,
+      seatNumber: formData.seatNumber,
+      ownerUserId: formData.ownerUserId,
+      paymentMethodId: formData.paymentMethodId,
+      total: formData.total,
+      paymentStatus: PAYMENT_STATUS.APPROVED,
+      salesChannelId: SALES_CHANNEL.APP,
+      purchaseDate: new Date().toISOString(),
+    });
 
-// 🔥 Simulación de API (luego la cambias por fetch o axios)
-const fakeApiCall = async (
-  data: CreatePurchaseRequestDto
-): Promise<CreatePurchaseResponseDto> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const approved = Math.random() > 0.2;
+    purchases = [...purchases, newPurchase];
 
-      if (approved) {
-        resolve({
-          id: 1,
-          status: 'approved',
-          confirmation_number: `ZY-${Date.now()}`,
-          ticket_qr: 'QR_CODE_BASE64',
-        });
-      } else {
-        resolve({
-          id: 1,
-          status: 'rejected',
-          confirmation_number: '',
-        });
-      }
-    }, 1500);
-  });
+    return newPurchase;
+  },
+
+  clear: (): void => {
+    purchases = [];
+  },
 };

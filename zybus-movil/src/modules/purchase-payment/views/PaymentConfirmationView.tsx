@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type {
@@ -12,6 +12,13 @@ import type { AppTheme } from '../../../shared/theme/types';
 import { AppSuccessModal } from '../../../shared/components';
 
 import type { RootStackParamList } from '../../../navigation/types';
+
+import { usePurchasePaymentStore } from '../store/purchase-payment.store';
+import { createPurchasePaymentModel } from '../models/purchase-payment.model';
+import {
+  PAYMENT_STATUS,
+  SALES_CHANNEL,
+} from '../constants/purchase-payment.constants';
 
 type PaymentConfirmationNavProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -34,13 +41,47 @@ export function PaymentConfirmationScreen(): ReactElement {
   const { purchaseData, paymentMethod, paymentStatus, confirmationNumber } =
     route.params;
 
-  const isApproved = paymentStatus === 'approved';
+  const { setPurchase, setPurchases } = usePurchasePaymentStore();
+
+  const isApproved = paymentStatus === PAYMENT_STATUS.APPROVED;
 
   const [showModal, setShowModal] = useState(true);
 
+  useEffect(() => {
+    if (!isApproved) {
+      return;
+    }
+
+    const purchase = createPurchasePaymentModel({
+      id: confirmationNumber,
+      ticketId: purchaseData.ticketId,
+      title: purchaseData.title,
+      route: purchaseData.route,
+      seatNumber: purchaseData.seatNumber,
+      ownerUserId: purchaseData.ownerUserId,
+      paymentMethodId: purchaseData.paymentMethodId,
+      total: purchaseData.total,
+      paymentStatus: PAYMENT_STATUS.APPROVED,
+      salesChannelId: SALES_CHANNEL.APP,
+      purchaseDate: new Date().toISOString(),
+    });
+
+    setPurchase(purchase);
+
+    setPurchases((currentPurchases) => [
+      ...currentPurchases,
+      purchase,
+    ]);
+  }, [
+    confirmationNumber,
+    isApproved,
+    purchaseData,
+    setPurchase,
+    setPurchases,
+  ]);
+
   return (
     <View style={styles.container}>
-      {/* Puedes dejar fondo vacío o info si quieres */}
       <View style={styles.content}>
         <Text style={styles.title}>
           Procesando resultado del pago...

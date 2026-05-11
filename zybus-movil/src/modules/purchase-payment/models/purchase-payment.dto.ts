@@ -1,18 +1,15 @@
-import type { PaymentStatus } from './purchase-payment.model';
-
-export type CreatePurchaseRequestDto = {
-  user_id?: number;
+export interface PurchaseDto {
+  id: number;
+  user_id?: number | null;
   seller_user_id?: number | null;
-  sales_channel_id: number;
+  sales_channel_id?: number | null;
   payment_method_id: number;
   total: number;
-  notes?: string | null;
+  purchase_date?: string;
+  notes?: string;
   state_id: number;
-};
-
-export type CreatePurchaseResponseDto = {
-  id: number;
-  status: PaymentStatus;
-  confirmation_number: string;
-  ticket_qr?: string;
-};
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+}
