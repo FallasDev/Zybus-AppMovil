@@ -1,15 +1,13 @@
 import type { ReactElement } from 'react';
-import { useMemo, useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useMemo } from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
 import type { RootStackParamList } from '../../../navigation/types';
-import { useAuth } from '../hooks/useAuth';
 import BackButton from '../components/BackButton';
 import AuthHeader from '../components/AuthHeader';
-import CodeInputRow from '../components/CodeInputRow';
-import PrimaryButton from '../components/PrimaryButton';
+import VerificationForm from '../components/VerificationForm';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Verification'>;
 
@@ -17,41 +15,14 @@ export function VerificationScreen({ navigation }: Props): ReactElement {
   const { theme } = useAppTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
-  const [code1, setCode1] = useState('');
-  const [code2, setCode2] = useState('');
-  const [code3, setCode3] = useState('');
-  const [code4, setCode4] = useState('');
-
-  const { handleVerifyCode, isLoading, error } = useAuth();
-
-  const code = `${code1}${code2}${code3}${code4}`;
+  
 
   return (
     <View style={styles.container}>
       <BackButton onPress={() => navigation.goBack()} />
-
       <AuthHeader title="Verificación" showLogo />
-      <Text style={styles.description}>
-        Ingresa el código de 4 dígitos que enviamos al número proporcionado.
-      </Text>
-
-      <CodeInputRow values={[code1, code2, code3, code4]} setters={[setCode1, setCode2, setCode3, setCode4]} />
-
-      {error && <Text style={styles.errorText}>{error}</Text>}
-
-      <PrimaryButton
-        disabled={isLoading}
-        onPress={async () => {
-          const success = await handleVerifyCode({ code });
-          if (success) navigation.navigate('MainTabs');
-        }}
-      >
-        {isLoading ? 'Verificando...' : 'Continuar'}
-      </PrimaryButton>
-
-      <TouchableOpacity style={styles.resendButton}>
-        <Text style={styles.resendText}>¿No recibiste el código? Reenviar</Text>
-      </TouchableOpacity>
+      <Text style={styles.description}>Ingresa el código de 4 dígitos que enviamos al número proporcionado.</Text>
+      <VerificationForm navigation={navigation} />
 
       <View pointerEvents="none">
         <Image

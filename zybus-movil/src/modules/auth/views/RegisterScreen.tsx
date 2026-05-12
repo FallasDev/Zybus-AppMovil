@@ -1,144 +1,26 @@
 import type { ReactElement } from 'react';
-import { useMemo, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useMemo } from 'react';
+import { KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
 import type { RootStackParamList } from '../../../navigation/types';
-import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../hooks/useAuth';
 import BackButton from '../components/BackButton';
 import AuthHeader from '../components/AuthHeader';
-import FormInput from '../components/FormInput';
-import PrimaryButton from '../components/PrimaryButton';
+import RegisterForm from '../components/RegisterForm';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
 export function RegisterScreen({ navigation }: Props): ReactElement {
   const { theme } = useAppTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [step, setStep] = useState(1);
-
-  const [firstName, setFirstName] = useState('');
-  const [lastName1, setLastName1] = useState('');
-  const [lastName2, setLastName2] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [identificationNumber, setIdentificationNumber] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  const { handleRegister, isLoading, error } = useAuth();
+  
 
   return (
-    <KeyboardAvoidingView
-      style={styles.keyboardView}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled">
-        <BackButton onPress={() => navigation.goBack()} />
-
-        <AuthHeader title="Crea tu cuenta" subtitle={step === 1 ? 'Paso 1 de 2: Datos personales' : 'Paso 2 de 2: Contacto y seguridad'} />
-
-        <View style={styles.stepIndicator}>
-          <View style={[styles.stepLine, step >= 1 && styles.stepLineActive]} />
-          <View style={[styles.stepLine, step === 2 && styles.stepLineActive]} />
-        </View>
-
-        {step === 1 && (
-          <>
-            <View style={styles.row}>
-              <View style={styles.halfField}>
-                <FormInput
-                  label="Nombre"
-                  placeholder="Tu nombre"
-                  value={firstName}
-                  onChangeText={setFirstName}
-                />
-              </View>
-
-              <View style={styles.halfField}>
-                <FormInput
-                  label="Primer apellido"
-                  placeholder="Primer apellido"
-                  value={lastName1}
-                  onChangeText={setLastName1}
-                />
-              </View>
-            </View>
-
-            <FormInput label="Segundo apellido" placeholder="Segundo apellido" value={lastName2} onChangeText={setLastName2} />
-
-            <FormInput label="Número de identificación" placeholder="Tu número de identificación" keyboardType="number-pad" value={identificationNumber} onChangeText={setIdentificationNumber} />
-          </>
-        )}
-
-        {step === 2 && (
-          <>
-            <FormInput label="Correo electrónico" placeholder="Tu correo electrónico" keyboardType="email-address" autoCapitalize="none" value={email} onChangeText={setEmail} />
-
-            <FormInput label="Teléfono" placeholder="Tu número de teléfono" keyboardType="phone-pad" value={phone} onChangeText={setPhone} />
-
-            <FormInput label="Contraseña" placeholder="Crea una contraseña" secure value={password} onChangeText={setPassword} />
-
-            <FormInput label="Confirmar contraseña" placeholder="Confirma tu contraseña" secure value={confirmPassword} onChangeText={setConfirmPassword} />
-
-            <View style={styles.termsRow}>
-              <View style={styles.checkbox} />
-              <Text style={styles.termsText}>
-                Acepto los <Text style={styles.termsLink}>Términos y Condiciones</Text> y la{' '}
-                <Text style={styles.termsLink}>Política de Privacidad</Text>
-              </Text>
-            </View>
-          </>
-        )}
-
-        {error && <Text style={styles.errorText}>{error}</Text>}
-
-        <PrimaryButton
-          disabled={isLoading}
-          onPress={async () => {
-            if (step === 1) {
-              setStep(2);
-              return;
-            }
-
-            const success = await handleRegister({
-              firstName,
-              lastName1,
-              lastName2,
-              email,
-              phone,
-              identificationNumber,
-              password,
-              confirmPassword,
-            });
-
-            if (success) {
-              navigation.navigate('Verification');
-            }
-          }}
-        >
-          {isLoading ? 'Creando cuenta...' : step === 1 ? 'Continuar' : 'Crear cuenta'}
-        </PrimaryButton>
-
-        {step === 2 && (
-          <TouchableOpacity style={styles.secondaryButton} onPress={() => setStep(1)}>
-            <Text style={styles.secondaryButtonText}>Volver</Text>
-          </TouchableOpacity>
-        )}
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>¿Ya tienes una cuenta? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <Text style={styles.footerLink}>Inicia sesión</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+    <KeyboardAvoidingView style={styles.keyboardView} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <BackButton onPress={() => navigation.goBack()} />
+      <AuthHeader title="Crea tu cuenta" />
+      <RegisterForm navigation={navigation} />
     </KeyboardAvoidingView>
   );
 }
