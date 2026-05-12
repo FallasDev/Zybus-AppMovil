@@ -1,11 +1,15 @@
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
 import type { RootStackParamList } from '../../../navigation/types';
 import { useAuth } from '../hooks/useAuth';
+import BackButton from '../components/BackButton';
+import AuthHeader from '../components/AuthHeader';
+import CodeInputRow from '../components/CodeInputRow';
+import PrimaryButton from '../components/PrimaryButton';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Verification'>;
 
@@ -24,74 +28,26 @@ export function VerificationScreen({ navigation }: Props): ReactElement {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backText}>‹</Text>
-      </TouchableOpacity>
+      <BackButton onPress={() => navigation.goBack()} />
 
-      <View style={styles.logoBox}>
-        <Image
-          source={require('../../../shared/assets/images/ZybusLogo.png')}
-          style={styles.logoImage}
-          resizeMode="contain"
-        />
-      </View>
-
-      <Text style={styles.title}>Verificación</Text>
+      <AuthHeader title="Verificación" showLogo />
       <Text style={styles.description}>
         Ingresa el código de 4 dígitos que enviamos al número proporcionado.
       </Text>
 
-      <View style={styles.codeRow}>
-        <TextInput
-          maxLength={1}
-          keyboardType="number-pad"
-          value={code1}
-          onChangeText={setCode1}
-          style={styles.codeInput}
-        />
-        <TextInput
-          maxLength={1}
-          keyboardType="number-pad"
-          value={code2}
-          onChangeText={setCode2}
-          style={styles.codeInput}
-        />
-        <TextInput
-          maxLength={1}
-          keyboardType="number-pad"
-          value={code3}
-          onChangeText={setCode3}
-          style={styles.codeInput}
-        />
-        <TextInput
-          maxLength={1}
-          keyboardType="number-pad"
-          value={code4}
-          onChangeText={setCode4}
-          style={styles.codeInput}
-        />
-      </View>
+      <CodeInputRow values={[code1, code2, code3, code4]} setters={[setCode1, setCode2, setCode3, setCode4]} />
 
       {error && <Text style={styles.errorText}>{error}</Text>}
 
-      <TouchableOpacity
-        activeOpacity={0.9}
-        style={styles.primaryButton}
+      <PrimaryButton
         disabled={isLoading}
         onPress={async () => {
-          const success = await handleVerifyCode({
-            code,
-          });
-
-          if (success) {
-            navigation.navigate('MainTabs');
-          }
+          const success = await handleVerifyCode({ code });
+          if (success) navigation.navigate('MainTabs');
         }}
       >
-        <Text style={styles.primaryButtonText}>
-          {isLoading ? 'Verificando...' : 'Continuar'}
-        </Text>
-      </TouchableOpacity>
+        {isLoading ? 'Verificando...' : 'Continuar'}
+      </PrimaryButton>
 
       <TouchableOpacity style={styles.resendButton}>
         <Text style={styles.resendText}>¿No recibiste el código? Reenviar</Text>

@@ -1,12 +1,16 @@
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
 import type { RootStackParamList } from '../../../navigation/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../hooks/useAuth';
+import BackButton from '../components/BackButton';
+import AuthHeader from '../components/AuthHeader';
+import FormInput from '../components/FormInput';
+import PrimaryButton from '../components/PrimaryButton';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
@@ -36,22 +40,9 @@ export function RegisterScreen({ navigation }: Props): ReactElement {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled">
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>‹</Text>
-        </TouchableOpacity>
+        <BackButton onPress={() => navigation.goBack()} />
 
-        <View style={styles.logoBox}>
-          <Image
-            source={require('../../../shared/assets/images/ZybusLogo.png')}
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
-        </View>
-
-        <Text style={styles.title}>Crea tu cuenta</Text>
-        <Text style={styles.subtitle}>
-          {step === 1 ? 'Paso 1 de 2: Datos personales' : 'Paso 2 de 2: Contacto y seguridad'}
-        </Text>
+        <AuthHeader title="Crea tu cuenta" subtitle={step === 1 ? 'Paso 1 de 2: Datos personales' : 'Paso 2 de 2: Contacto y seguridad'} />
 
         <View style={styles.stepIndicator}>
           <View style={[styles.stepLine, step >= 1 && styles.stepLineActive]} />
@@ -62,115 +53,39 @@ export function RegisterScreen({ navigation }: Props): ReactElement {
           <>
             <View style={styles.row}>
               <View style={styles.halfField}>
-                <Text style={styles.label}>Nombre</Text>
-                <TextInput
+                <FormInput
+                  label="Nombre"
                   placeholder="Tu nombre"
-                  placeholderTextColor={theme.colors.textSecondary}
                   value={firstName}
                   onChangeText={setFirstName}
-                  style={styles.input}
                 />
               </View>
 
               <View style={styles.halfField}>
-                <Text style={styles.label}>Primer apellido</Text>
-                <TextInput
+                <FormInput
+                  label="Primer apellido"
                   placeholder="Primer apellido"
-                  placeholderTextColor={theme.colors.textSecondary}
                   value={lastName1}
                   onChangeText={setLastName1}
-                  style={styles.input}
                 />
               </View>
             </View>
 
-            <Text style={styles.label}>Segundo apellido</Text>
-            <TextInput
-              placeholder="Segundo apellido"
-              placeholderTextColor={theme.colors.textSecondary}
-              value={lastName2}
-              onChangeText={setLastName2}
-              style={styles.input}
-            />
+            <FormInput label="Segundo apellido" placeholder="Segundo apellido" value={lastName2} onChangeText={setLastName2} />
 
-            <Text style={styles.label}>Número de identificación</Text>
-            <TextInput
-              placeholder="Tu número de identificación"
-              placeholderTextColor={theme.colors.textSecondary}
-              keyboardType="number-pad"
-              value={identificationNumber}
-              onChangeText={setIdentificationNumber}
-              style={styles.input}
-            />
+            <FormInput label="Número de identificación" placeholder="Tu número de identificación" keyboardType="number-pad" value={identificationNumber} onChangeText={setIdentificationNumber} />
           </>
         )}
 
         {step === 2 && (
           <>
-            <Text style={styles.label}>Correo electrónico</Text>
-            <TextInput
-              placeholder="Tu correo electrónico"
-              placeholderTextColor={theme.colors.textSecondary}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={setEmail}
-              style={styles.input}
-            />
+            <FormInput label="Correo electrónico" placeholder="Tu correo electrónico" keyboardType="email-address" autoCapitalize="none" value={email} onChangeText={setEmail} />
 
-            <Text style={styles.label}>Teléfono</Text>
-            <TextInput
-              placeholder="Tu número de teléfono"
-              placeholderTextColor={theme.colors.textSecondary}
-              keyboardType="phone-pad"
-              value={phone}
-              onChangeText={setPhone}
-              style={styles.input}
-            />
+            <FormInput label="Teléfono" placeholder="Tu número de teléfono" keyboardType="phone-pad" value={phone} onChangeText={setPhone} />
 
-            <Text style={styles.label}>Contraseña</Text>
-            <View style={styles.passwordRow}>
-              <TextInput
-                placeholder="Crea una contraseña"
-                placeholderTextColor={theme.colors.textSecondary}
-                secureTextEntry={!showPassword}
-                value={password}
-                onChangeText={setPassword}
-                style={[styles.input, styles.passwordField]}
-              />
+            <FormInput label="Contraseña" placeholder="Crea una contraseña" secure value={password} onChangeText={setPassword} />
 
-              <TouchableOpacity
-                style={styles.eyeButton}
-                onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons
-                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                  size={22}
-                  color={theme.colors.textSecondary}
-                />
-              </TouchableOpacity>
-            </View>
-
-            <Text style={styles.label}>Confirmar contraseña</Text>
-            <View style={styles.passwordRow}>
-              <TextInput
-                placeholder="Confirma tu contraseña"
-                placeholderTextColor={theme.colors.textSecondary}
-                secureTextEntry={!showConfirmPassword}
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                style={[styles.input, styles.passwordField]}
-              />
-
-              <TouchableOpacity
-                style={styles.eyeButton}
-                onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                <Ionicons
-                  name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
-                  size={22}
-                  color={theme.colors.textSecondary}
-                />
-              </TouchableOpacity>
-            </View>
+            <FormInput label="Confirmar contraseña" placeholder="Confirma tu contraseña" secure value={confirmPassword} onChangeText={setConfirmPassword} />
 
             <View style={styles.termsRow}>
               <View style={styles.checkbox} />
@@ -184,9 +99,7 @@ export function RegisterScreen({ navigation }: Props): ReactElement {
 
         {error && <Text style={styles.errorText}>{error}</Text>}
 
-        <TouchableOpacity
-          activeOpacity={0.9}
-          style={styles.primaryButton}
+        <PrimaryButton
           disabled={isLoading}
           onPress={async () => {
             if (step === 1) {
@@ -208,11 +121,10 @@ export function RegisterScreen({ navigation }: Props): ReactElement {
             if (success) {
               navigation.navigate('Verification');
             }
-          }}>
-          <Text style={styles.primaryButtonText}>
-            {isLoading ? 'Creando cuenta...' : step === 1 ? 'Continuar' : 'Crear cuenta'}
-          </Text>
-        </TouchableOpacity>
+          }}
+        >
+          {isLoading ? 'Creando cuenta...' : step === 1 ? 'Continuar' : 'Crear cuenta'}
+        </PrimaryButton>
 
         {step === 2 && (
           <TouchableOpacity style={styles.secondaryButton} onPress={() => setStep(1)}>

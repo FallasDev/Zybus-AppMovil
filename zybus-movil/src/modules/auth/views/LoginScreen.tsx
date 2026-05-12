@@ -1,12 +1,17 @@
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
 import type { RootStackParamList } from '../../../navigation/types';
 import { Ionicons } from '@expo/vector-icons';
+import AuthHeader from '../components/AuthHeader';
+import FormInput from '../components/FormInput';
+import PrimaryButton from '../components/PrimaryButton';
+import Divider from '../components/Divider';
+import SocialButton from '../components/SocialButton';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -22,63 +27,27 @@ export function LoginScreen({ navigation }: Props): ReactElement {
 
   return (
     <View style={styles.container}>
-      <View style={styles.logoBox}>
-        <Image
-          source={require('../../../shared/assets/images/ZybusLogo.png')}
-          style={styles.logoImage}
-          resizeMode="contain" />
-      </View>
-
-      <Text style={styles.title}>Bienvenido de nuevo</Text>
-      <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
+      <AuthHeader title="Bienvenido de nuevo" subtitle="Inicia sesión para continuar" />
 
       <View style={styles.form}>
-        <Text style={styles.label}>Correo electrónico</Text>
-        <View style={styles.inputWrapper}>
-          <Ionicons
-            name="mail-outline"
-            size={18}
-            color={theme.colors.textSecondary}
-            style={styles.inputLeftIcon}
-          />
+        <FormInput
+          label="Correo electrónico"
+          placeholder="Su correo electrónico"
+          leftIcon="mail-outline"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          value={email}
+          onChangeText={setEmail}
+        />
 
-          <TextInput
-            placeholder="Su correo electrónico"
-            placeholderTextColor={theme.colors.textSecondary}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-            style={[styles.input, styles.inputWithLeftIcon]}
-          />
-        </View>
-
-        <Text style={styles.label}>Contraseña</Text>
-
-        <View style={styles.inputWrapper}>
-          <Ionicons
-            name="lock-closed-outline"
-            size={18}
-            color={theme.colors.textSecondary}
-            style={styles.inputLeftIcon} />
-
-          <TextInput
-            placeholder="Tu contraseña"
-            placeholderTextColor={theme.colors.textSecondary}
-            secureTextEntry={!showPassword}
-            value={password}
-            onChangeText={setPassword}
-            style={[styles.input, styles.inputWithBothIcons]} />
-
-          <TouchableOpacity
-            style={styles.inputRightIconButton}
-            onPress={() => setShowPassword(!showPassword)}>
-            <Ionicons
-              name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-              size={20}
-              color={theme.colors.textSecondary} />
-          </TouchableOpacity>
-        </View>
+        <FormInput
+          label="Contraseña"
+          placeholder="Tu contraseña"
+          leftIcon="lock-closed-outline"
+          secure
+          value={password}
+          onChangeText={setPassword}
+        />
 
         <TouchableOpacity style={styles.forgotWrap}>
           <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
@@ -86,33 +55,19 @@ export function LoginScreen({ navigation }: Props): ReactElement {
 
         {error && <Text style={styles.errorText}>{error}</Text>}
 
-        <TouchableOpacity
-          style={styles.primaryButton}
+        <PrimaryButton
           disabled={isLoading}
           onPress={async () => {
-            const success = await handleLogin({
-              email,
-              password,
-            });
+            const success = await handleLogin({ email, password });
+            if (success) navigation.navigate('MainTabs');
+          }}
+        >
+          {isLoading ? 'Ingresando...' : 'Inicia Sesión'}
+        </PrimaryButton>
 
-            if (success) {
-              navigation.navigate('MainTabs');
-            }
-          }}>
-          <Text style={styles.primaryButtonText}>
-            {isLoading ? 'Ingresando...' : 'Inicia Sesión'}
-          </Text>
-        </TouchableOpacity>
+        <Divider />
 
-        <View style={styles.divider}>
-          <View style={styles.line} />
-          <Text style={styles.dividerText}>o</Text>
-          <View style={styles.line} />
-        </View>
-
-        <TouchableOpacity style={styles.socialButton}>
-          <Text style={styles.socialButtonText}>Continuar con Google</Text>
-        </TouchableOpacity>
+        <SocialButton>Continuar con Google</SocialButton>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>No tienes cuenta? </Text>
