@@ -16,6 +16,8 @@ import { ProfileProvider } from '../modules/profile/store/profile.store';
 
 import { MainTabs } from './MainTabs';
 import type { RootStackParamList } from './types';
+import { TicketHistoryScreen } from '../modules/tickets/views/TicketsHistoryScreen';
+import { TicketDetailScreen } from '../modules/tickets/views/TicketDetailScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -44,7 +46,9 @@ export const AppNavigator = (): ReactElement => {
                 <Stack.Screen name="TripTracking" component={TripTrackingScreen} />
                     <Stack.Screen name="Notifications" component={NotificationsScreen} />
                     <Stack.Screen name="Profile" component={ProfileScreen} />
-                </Stack.Navigator>
+                  <Stack.Screen name="TicketHistory" component={TicketHistoryScreen} />
+             <Stack.Screen name="TicketDetailScreen" component={TicketDetailScreen} />
+            </Stack.Navigator>
             </TrackingProvider>
               </SeatSelectionProvider>
             </TripDetailProvider>

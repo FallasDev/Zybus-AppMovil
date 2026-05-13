@@ -1,3 +1,4 @@
+import type { Ticket } from '../modules/tickets/models/ticket.model';
 export type RootStackParamList = {
   Onboarding: undefined;
   Login: undefined;
@@ -15,4 +16,6 @@ export type RootStackParamList = {
   TripTracking: { tripId: string };
   Notifications: undefined;
   Profile: undefined;
+   TicketHistory: undefined;
+   TicketDetailScreen: { ticket: Ticket };
 };

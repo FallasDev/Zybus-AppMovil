@@ -1,48 +1,87 @@
-import { TICKET_ERRORS, type TicketErrorCode } from '../constants/tickets.constants';
+import {
+  TICKET_ERRORS,
+  type TicketErrorCode,
+} from '../constants/tickets.constants';
 import type { TicketFormData } from '../models/ticket.model';
-import type { User } from '../../users';
 
-export const validateTicketForm = (
-  { title, route, seatNumber, ownerUserId }: TicketFormData,
-  users: User[]
-): TicketErrorCode | null => {
-  if (!title.trim()) {
-    return TICKET_ERRORS.TITLE_REQUIRED;
+export const validateTicketForm = ({
+  tripId,
+  tripSeatId,
+  purchaseId,
+}: TicketFormData): TicketErrorCode | null => {
+  if (
+    tripId === '' ||
+    tripId === null ||
+    tripId === undefined
+  ) {
+    return TICKET_ERRORS.TRIP_REQUIRED;
   }
 
-  if (!route.trim()) {
-    return TICKET_ERRORS.ROUTE_REQUIRED;
-  }
-
-  if (!seatNumber.trim()) {
+  if (
+    tripSeatId === '' ||
+    tripSeatId === null ||
+    tripSeatId === undefined
+  ) {
     return TICKET_ERRORS.SEAT_REQUIRED;
   }
 
-  if (!ownerUserId.trim()) {
-    return TICKET_ERRORS.OWNER_REQUIRED;
-  }
-
-  const ownerExists = users.some((user) => user.id === ownerUserId);
-  if (!ownerExists) {
-    return TICKET_ERRORS.OWNER_NOT_FOUND;
+  if (
+    purchaseId === '' ||
+    purchaseId === null ||
+    purchaseId === undefined
+  ) {
+    return TICKET_ERRORS.PURCHASE_REQUIRED;
   }
 
   return null;
 };
 
-export const getTicketErrorMessage = (errorCode: string): string => {
-  const messageMap: Record<TicketErrorCode, string> = {
-    [TICKET_ERRORS.TITLE_REQUIRED]: 'Ticket title is required.',
-    [TICKET_ERRORS.ROUTE_REQUIRED]: 'Route is required.',
-    [TICKET_ERRORS.SEAT_REQUIRED]: 'Seat number is required.',
-    [TICKET_ERRORS.OWNER_REQUIRED]: 'You must assign a user.',
-    [TICKET_ERRORS.OWNER_NOT_FOUND]: 'Selected user does not exist.',
-    [TICKET_ERRORS.TICKET_NOT_FOUND]: 'The ticket no longer exists.',
+/* =========================================================
+   ERROR MESSAGES
+========================================================= */
+
+export const getTicketErrorMessage = (
+  errorCode: TicketErrorCode
+): string => {
+  const errorMessages: Record<
+    TicketErrorCode,
+    string
+  > = {
+    TRIP_REQUIRED:
+      'Debe seleccionar un viaje.',
+
+    SEAT_REQUIRED:
+      'Debe seleccionar un asiento.',
+
+    PURCHASE_REQUIRED:
+      'Debe seleccionar una compra.',
+
+    STATE_REQUIRED:
+      'Debe seleccionar un estado.',
+
+    TICKET_NOT_FOUND:
+      'No se encontró el tiquete.',
+
+    TICKET_ALREADY_USED:
+      'El tiquete ya fue utilizado.',
+
+    TICKET_EXPIRED:
+      'El tiquete ha expirado.',
+
+    SEAT_ALREADY_RESERVED:
+      'El asiento ya está reservado.',
+
+    INVALID_QR:
+      'El código QR es inválido.',
+
+    INVALID_CONFIRMATION:
+      'El número de confirmación es inválido.',
+      
+    UNKNOWN: 'Ocurrió un error inesperado. Intenta nuevamente',
   };
 
-  if (errorCode in messageMap) {
-    return messageMap[errorCode as TicketErrorCode];
-  }
-
-  return 'Unexpected error.';
+  return (
+    errorMessages[errorCode] ??
+    'Unexpected error.'
+  );
 };

@@ -1,42 +1,48 @@
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native'; // ← quita Alert
+import { useNavigation } from '@react-navigation/native';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
 import { AppModal, LoadingState } from '../../../shared/components';
 import { TicketList } from '../components/TicketList';
 import { TicketForm } from '../components/TicketForm';
-import { TICKETS_SCREEN_TEXT } from '../constants/tickets.constants';
+import { TICKETS_SCREEN_TEXT, TICKET_STATUS } from '../constants/tickets.constants';
 import type { Ticket, TicketFormData } from '../models/ticket.model';
 import { useTicketsCrud } from '../hooks/useTicketsCrud';
 
 const initialFormData: TicketFormData = {
-  title: '',
-  route: '',
-  seatNumber: '',
-  ownerUserId: '',
+  tripId: '',
+  tripSeatId: '',
+  purchaseId: '',
+  stateId: '',
 };
+
+function resolveStateId(state: Ticket['state']): string {
+  if (state === TICKET_STATUS.ACTIVE) return '1';
+  if (state === TICKET_STATUS.USED) return '2';
+  return '0';
+}
 
 export function TicketsScreen(): ReactElement {
   const {
     tickets,
-    users,
     isLoading,
     error,
     selectedTicket,
     createTicket,
-    updateTicket,
-    deleteTicket,
+    cancelTicket,
     selectTicketForEdit,
     clearSelection,
-    getOwnerNameById,
   } = useTicketsCrud();
 
+  const navigation = useNavigation<any>();
   const { theme } = useAppTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [formData, setFormData] = useState<TicketFormData>(initialFormData);
+  const [cancelTargetId, setCancelTargetId] = useState<number | null>(null); // ← estado cancelación
 
   const isEditing = useMemo(() => Boolean(selectedTicket), [selectedTicket]);
 
@@ -46,13 +52,17 @@ export function TicketsScreen(): ReactElement {
     setIsModalVisible(true);
   };
 
+  const handleTicketDetail = (ticket: Ticket): void => {
+    navigation.navigate('TicketDetailScreen', { ticket });
+  };
+
   const openEditModal = (ticket: Ticket): void => {
     selectTicketForEdit(ticket);
     setFormData({
-      title: ticket.title,
-      route: ticket.route,
-      seatNumber: ticket.seatNumber,
-      ownerUserId: ticket.ownerUserId,
+      tripId: String(ticket.tripId),
+      tripSeatId: String(ticket.tripSeatId),
+      purchaseId: String(ticket.purchaseId ?? ''),
+      stateId: resolveStateId(ticket.state),
     });
     setIsModalVisible(true);
   };
@@ -68,29 +78,21 @@ export function TicketsScreen(): ReactElement {
   };
 
   const handleSubmit = async (): Promise<void> => {
-    const success =
-      isEditing && selectedTicket
-        ? await updateTicket(selectedTicket.id, formData)
-        : await createTicket(formData);
-
-    if (success) {
-      closeModal();
-    }
+    const success = await createTicket(formData);
+    if (success) closeModal();
   };
 
-  const handleDeleteTicket = async (ticketId: string): Promise<void> => {
-    Alert.alert('Eliminar tiquete', '¿Seguro que deseas eliminar este tiquete?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Eliminar',
-        style: 'destructive',
-        onPress: () => {
-          void deleteTicket(ticketId);
-        },
-      },
-    ]);
+  const handleCancelTicket = (ticketId: number): void => {
+    setCancelTargetId(ticketId);
   };
 
+  const confirmCancel = async (): Promise<void> => {
+    if (cancelTargetId === null) return;
+    await cancelTicket(String(cancelTargetId));
+    setCancelTargetId(null);
+  };
+
+  /* HEADER */
   const header = (
     <>
       <View style={styles.headerCard}>
@@ -103,13 +105,17 @@ export function TicketsScreen(): ReactElement {
             <Text style={styles.summaryLabel}>Total</Text>
           </View>
           <View style={styles.summaryBox}>
-            <Text style={styles.summaryValue}>{users.length}</Text>
-            <Text style={styles.summaryLabel}>Usuarios</Text>
+            <Text style={styles.summaryValue}>
+              {tickets.filter((t) => t.state === TICKET_STATUS.ACTIVE).length}
+            </Text>
+            <Text style={styles.summaryLabel}>Activos</Text>
           </View>
         </View>
 
         <Pressable style={styles.createButton} onPress={openCreateModal}>
-          <Text style={styles.createButtonText}>{TICKETS_SCREEN_TEXT.CREATE_BUTTON}</Text>
+          <Text style={styles.createButtonText}>
+            {TICKETS_SCREEN_TEXT.CREATE_BUTTON}
+          </Text>
         </Pressable>
       </View>
 
@@ -128,20 +134,53 @@ export function TicketsScreen(): ReactElement {
       <TicketList
         tickets={tickets}
         isLoading={isLoading}
-        getOwnerNameById={getOwnerNameById}
-        onEdit={openEditModal}
-        onDelete={handleDeleteTicket}
+        onDetail={handleTicketDetail}
+        onCancel={handleCancelTicket}
         header={header}
       />
 
       <AppModal
+        visible={cancelTargetId !== null}
+        title="Política de cancelación"
+        onClose={() => setCancelTargetId(null)}
+      >
+        <View style={{ gap: 12 }}>
+          <Text style={{ color: theme.colors.textSecondary, lineHeight: 22 }}>
+            Al cancelar este tiquete:{'\n\n'}
+            {'• '}Solo se permite cancelar antes de la fecha y hora del viaje.{'\n'}
+            {'• '}El tiquete será invalidado y no podrá reutilizarse.{'\n'}
+            {'• '}Esta acción no se podrá recuperar.{'\n\n'}
+            ¿Deseas continuar?
+          </Text>
+
+          <Pressable
+            style={[styles.createButton, { backgroundColor: '#b24040e9' }]}
+            onPress={() => { void confirmCancel(); }}
+            disabled={isLoading}
+          >
+            <Text style={{ color: 'white', fontWeight: '700', fontSize: 16 }}>
+              Sí, cancelar tiquete
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.createButton}
+            onPress={() => setCancelTargetId(null)}
+          >
+            <Text style={{ color: theme.colors.brandBlue, fontWeight: '700', fontSize: 16 }}>
+              No, mantener tiquete
+            </Text>
+          </Pressable>
+        </View>
+      </AppModal>
+
+      <AppModal
         visible={isModalVisible}
-        title={isEditing ? 'Editar tiquete' : 'Nuevo tiquete'}
+        title={isEditing ? 'Editar tiquete' : 'Comprar tiquete'}
         onClose={closeModal}
       >
         <TicketForm
           formData={formData}
-          users={users}
           isLoading={isLoading}
           submitLabel={
             isEditing
@@ -149,9 +188,7 @@ export function TicketsScreen(): ReactElement {
               : TICKETS_SCREEN_TEXT.CREATE_BUTTON
           }
           onChange={handleChange}
-          onSubmit={() => {
-            void handleSubmit();
-          }}
+          onSubmit={() => { void handleSubmit(); }}
           onCancel={closeModal}
         />
       </AppModal>
@@ -159,6 +196,7 @@ export function TicketsScreen(): ReactElement {
   );
 }
 
+/* STYLES */
 function makeStyles(theme: AppTheme) {
   return StyleSheet.create({
     wrapper: {

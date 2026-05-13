@@ -43,7 +43,7 @@ export function AccountScreen(): ReactElement {
       id: 'tickets',
       label: 'Mis Tickets',
       icon: 'ticket-outline',
-      onPress: placeholder('Mis Tickets'),
+     onPress: () => navigation.navigate('TicketHistory'),
     },
     {
       id: 'payment',
