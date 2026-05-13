@@ -5,7 +5,13 @@ import type { Ticket, TicketFormData } from '../models/ticket.model';
 import { mapTicketFromResponseDTO } from '../models/ticket.mapper';
 import { ticketsService } from '../services/tickets.service';
 import { useTicketsStore } from '../store/tickets.store';
-import { getTicketErrorMessage, validateTicketForm } from '../utils/ticket.validation';
+
+import {
+  getTicketErrorMessage,
+  validateTicketForm,
+} from '../utils/ticket.validation';
+
+import type { CreateTicketRequestDTO } from '../models/ticket.dto';
 
 interface UseTicketsCrudResult {
   tickets: Ticket[];
@@ -13,10 +19,10 @@ interface UseTicketsCrudResult {
   isLoading: boolean;
   error: string | null;
   selectedTicket: Ticket | null;
+
   fetchInitialData: () => Promise<void>;
   createTicket: (formData: TicketFormData) => Promise<boolean>;
-  updateTicket: (ticketId: string, formData: TicketFormData) => Promise<boolean>;
-  deleteTicket: (ticketId: string) => Promise<void>;
+  cancelTicket: (ticketId: string) => Promise<void>;
   selectTicketForEdit: (ticket: Ticket) => void;
   clearSelection: () => void;
   getOwnerNameById: (ownerUserId: string) => string;
@@ -36,20 +42,20 @@ export const useTicketsCrud = (): UseTicketsCrudResult => {
     setSelectedTicket,
   } = useTicketsStore();
 
+
+  /* =========================
+     WRAPPER REQUEST
+  ========================= */
   const withRequest = useCallback(
-    async (requestFn: () => Promise<void>): Promise<boolean> => {
+    async (fn: () => Promise<void>): Promise<boolean> => {
       setIsLoading(true);
       setError(null);
 
       try {
-        await requestFn();
+        await fn();
         return true;
-      } catch (requestError) {
-        if (requestError instanceof Error) {
-          setError(getTicketErrorMessage(requestError.message));
-        } else {
-          setError(getTicketErrorMessage('UNKNOWN_ERROR'));
-        }
+      } catch {
+        setError(getTicketErrorMessage('UNKNOWN'));
         return false;
       } finally {
         setIsLoading(false);
@@ -58,84 +64,87 @@ export const useTicketsCrud = (): UseTicketsCrudResult => {
     [setError, setIsLoading]
   );
 
-  const fetchInitialData = useCallback(async (): Promise<void> => {
+  /* LOAD DATA */
+  const fetchInitialData = useCallback(async () => {
     await withRequest(async () => {
       const [ticketDtos, userDtos] = await Promise.all([
         ticketsService.getAllTickets(),
         usersService.getAllUsers(),
       ]);
 
-      const mappedTickets = ticketDtos.map(mapTicketFromResponseDTO);
-      const mappedUsers = userDtos.map(mapUserFromResponseDTO);
-
-      setTickets(mappedTickets);
-      setUsers(mappedUsers);
+      setTickets(ticketDtos.map(mapTicketFromResponseDTO));
+      setUsers(userDtos.map(mapUserFromResponseDTO));
     });
   }, [setTickets, setUsers, withRequest]);
 
+  /*CREATE */
   const createTicket = useCallback(
     async (formData: TicketFormData): Promise<boolean> => {
-      const validationError = validateTicketForm(formData, users);
-      if (validationError) {
-        setError(getTicketErrorMessage(validationError));
+      const errorValidation = validateTicketForm(formData);
+
+      if (errorValidation) {
+        setError(getTicketErrorMessage(errorValidation));
         return false;
       }
 
       return withRequest(async () => {
-        const dto = await ticketsService.createTicket(formData);
-        const mapped = mapTicketFromResponseDTO(dto);
-        setTickets((prev) => [mapped, ...prev]);
+        const payload: CreateTicketRequestDTO = {
+          trip_id: Number(formData.tripId),
+          trip_seat_id: Number(formData.tripSeatId),
+          purchase_id: Number(formData.purchaseId),
+        };
+
+        const dto = await ticketsService.createTicket(payload);
+
+        setTickets((prev) => [
+          mapTicketFromResponseDTO(dto),
+          ...prev,
+        ]);
       });
     },
-    [setError, setTickets, users, withRequest]
+    [setError, setTickets, withRequest]  // ✅ users ya no es dependencia aquí
   );
 
-  const updateTicket = useCallback(
-    async (ticketId: string, formData: TicketFormData): Promise<boolean> => {
-      const validationError = validateTicketForm(formData, users);
-      if (validationError) {
-        setError(getTicketErrorMessage(validationError));
-        return false;
-      }
-
-      return withRequest(async () => {
-        const dto = await ticketsService.updateTicket(ticketId, formData);
-        const mapped = mapTicketFromResponseDTO(dto);
-        setTickets((prev) => prev.map((item) => (item.id === ticketId ? mapped : item)));
-      });
-    },
-    [setError, setTickets, users, withRequest]
-  );
-
-  const deleteTicket = useCallback(
+  /* CANCEL */
+  const cancelTicket = useCallback(
     async (ticketId: string): Promise<void> => {
       await withRequest(async () => {
-        await ticketsService.deleteTicket(ticketId);
-        setTickets((prev) => prev.filter((item) => item.id !== ticketId));
+        await ticketsService.cancelTicket(Number(ticketId));
+
+        setTickets((prev) =>
+          prev.map((t) =>
+            t.id === Number(ticketId)
+              ? { ...t, state: 'CANCELLED' as any }
+              : t
+          )
+        );
       });
     },
     [setTickets, withRequest]
   );
 
+  /* SELECTION */
   const selectTicketForEdit = useCallback(
-    (ticket: Ticket): void => {
+    (ticket: Ticket) => {
       setError(null);
       setSelectedTicket(ticket);
     },
     [setError, setSelectedTicket]
   );
 
-  const clearSelection = useCallback((): void => {
+  const clearSelection = useCallback(() => {
     setSelectedTicket(null);
   }, [setSelectedTicket]);
 
+  /* UTILS */
   const getOwnerNameById = useCallback(
-    (ownerUserId: string): string => users.find((item) => item.id === ownerUserId)?.name || 'Unknown user',
+    (id: string) =>
+      users.find((u) => u.id === id)?.name ?? 'Unknown user',
     [users]
   );
 
   useEffect(() => {
-    fetchInitialData();
+    void fetchInitialData();
   }, [fetchInitialData]);
 
   return {
@@ -146,8 +155,7 @@ export const useTicketsCrud = (): UseTicketsCrudResult => {
     selectedTicket,
     fetchInitialData,
     createTicket,
-    updateTicket,
-    deleteTicket,
+    cancelTicket,
     selectTicketForEdit,
     clearSelection,
     getOwnerNameById,

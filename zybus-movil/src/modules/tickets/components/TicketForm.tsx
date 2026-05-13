@@ -1,92 +1,77 @@
 import type { ReactElement } from 'react';
 import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {Pressable,StyleSheet,Text,TextInput,View,} from 'react-native';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
-import { TICKETS_SCREEN_TEXT } from '../constants/tickets.constants';
 import type { TicketFormData } from '../models/ticket.model';
-import type { User } from '../../users';
+import { TICKETS_SCREEN_TEXT } from '../constants/tickets.constants';
 
-interface TicketFormProps {
+interface Props {
   formData: TicketFormData;
-  users: User[];
   isLoading: boolean;
   submitLabel: string;
   onChange: (field: keyof TicketFormData, value: string) => void;
   onSubmit: () => void;
   onCancel: () => void;
 }
-
 export function TicketForm({
   formData,
-  users,
   isLoading,
   submitLabel,
   onChange,
   onSubmit,
   onCancel,
-}: TicketFormProps): ReactElement {
+}: Props): ReactElement {
   const { theme } = useAppTheme();
+
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <Text style={styles.label}>Título</Text>
-      <TextInput
-        value={formData.title}
-        onChangeText={(value) => onChange('title', value)}
-        placeholder="Ej: Viaje a Cartago"
-        placeholderTextColor={theme.colors.textSecondary}
-        style={styles.input}
-        editable={!isLoading}
-      />
+    <View style={styles.card}>
+      {/* TITLE */}
+      <Text style={styles.title}>Comprar Tiquete</Text>
 
-      <Text style={styles.label}>Ruta</Text>
-      <TextInput
-        value={formData.route}
-        onChangeText={(value) => onChange('route', value)}
-        placeholder="Ej: San José → Cartago"
-        placeholderTextColor={theme.colors.textSecondary}
-        style={styles.input}
-        editable={!isLoading}
-      />
+      <Text style={styles.subtitle}>
+        Completa la información para generar tu ticket.
+      </Text>
 
-      <Text style={styles.label}>Asiento</Text>
-      <TextInput
-        value={formData.seatNumber}
-        onChangeText={(value) => onChange('seatNumber', value)}
-        placeholder="Ej: A1"
-        placeholderTextColor={theme.colors.textSecondary}
-        style={styles.input}
-        editable={!isLoading}
-      />
+      {/* TRIP ID */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Ruta</Text>
 
-      <Text style={styles.label}>Usuario asignado</Text>
-      <View style={styles.usersWrap}>
-        {users.map((user) => {
-          const isSelected = formData.ownerUserId === user.id;
-          return (
-            <Pressable
-              key={user.id}
-              style={[styles.userChip, isSelected && styles.userChipSelected]}
-              onPress={() => onChange('ownerUserId', user.id)}
-              disabled={isLoading}
-            >
-              <Text style={[styles.userChipText, isSelected && styles.userChipTextSelected]}>
-                {user.name}
-              </Text>
-            </Pressable>
-          );
-        })}
+        <TextInput
+          value={String(formData.tripId ?? '')}
+          onChangeText={(value) => onChange('tripId', value)}
+          keyboardType="numeric"
+          style={styles.input}
+          editable={!isLoading}
+        />
       </View>
 
+      {/* SEAT */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Asiento</Text>
+
+        <TextInput
+          value={String(formData.tripSeatId ?? '')}
+          onChangeText={(value) => onChange('tripSeatId', value)}
+          keyboardType="numeric"
+          style={styles.input}
+          editable={!isLoading}
+        />
+      </View>
+
+
+      {/* BUTTONS */}
       <View style={styles.actions}>
         <Pressable
           style={[styles.cancelButton, isLoading && styles.disabledButton]}
           onPress={onCancel}
           disabled={isLoading}
         >
-          <Text style={styles.cancelButtonText}>{TICKETS_SCREEN_TEXT.CANCEL_BUTTON}</Text>
+          <Text style={styles.cancelText}>
+            {TICKETS_SCREEN_TEXT.CANCEL_BUTTON}
+          </Text>
         </Pressable>
 
         <Pressable
@@ -94,83 +79,124 @@ export function TicketForm({
           onPress={onSubmit}
           disabled={isLoading}
         >
-          <Text style={styles.submitButtonText}>{submitLabel}</Text>
+          <Text style={styles.submitText}>
+            {isLoading ? 'Procesando...' : submitLabel}
+          </Text>
         </Pressable>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
+/* STYLES  */
+
 function makeStyles(theme: AppTheme) {
   return StyleSheet.create({
-    label: {
-      fontSize: 15,
+    card: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: 22,
+      padding: 20,
+    },
+
+    title: {
+      fontSize: 26,
       fontWeight: '700',
-      color: theme.colors.brandBlue,
-      marginBottom: 8,
-      marginTop: 8,
+      color: theme.colors.textPrimary,
+      marginBottom: 6,
     },
+
+    subtitle: {
+      fontSize: 14,
+      color: theme.colors.textSecondary,
+      marginBottom: 24,
+    },
+
+    inputGroup: {
+      marginBottom: 18,
+    },
+
+    label: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: theme.colors.textSecondary,
+      marginBottom: 8,
+    },
+
     input: {
-      height: 52,
-      backgroundColor: theme.colors.inputBackground,
-      borderRadius: 10,
+      backgroundColor: theme.colors.background,
+      borderRadius: 12,
       paddingHorizontal: 14,
+      paddingVertical: 14,
       fontSize: 15,
       color: theme.colors.textPrimary,
     },
-    usersWrap: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: 10,
-      marginTop: 4,
-      marginBottom: 8,
+
+    statusBox: {
+      backgroundColor: '#dcfce7',
+      borderRadius: 14,
+      padding: 14,
+      marginBottom: 14,
     },
-    userChip: {
-      backgroundColor: theme.colors.surfaceAlt,
-      borderRadius: 999,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
+
+    statusLabel: {
+      fontSize: 12,
+      color: '#166534',
+      textTransform: 'uppercase',
+      marginBottom: 4,
     },
-    userChipSelected: {
-      backgroundColor: theme.colors.brandBlue,
+
+    statusValue: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: '#166534',
     },
-    userChipText: {
-      color: theme.colors.textPrimary,
-      fontWeight: '600',
+
+    infoBox: {
+      backgroundColor: '#eff6ff',
+      borderRadius: 14,
+      padding: 14,
+      marginBottom: 20,
     },
-    userChipTextSelected: {
-      color: theme.colors.white,
+
+    infoText: {
+      color: '#1e3a8a',
+      fontSize: 14,
+      lineHeight: 20,
     },
+
     actions: {
       flexDirection: 'row',
       gap: 12,
-      marginTop: 22,
-      marginBottom: 12,
     },
+
     cancelButton: {
       flex: 1,
-      backgroundColor: theme.colors.surfaceAlt,
+      backgroundColor: '#dc2626',
       borderRadius: 12,
-      paddingVertical: 13,
+      paddingVertical: 14,
       alignItems: 'center',
     },
-    cancelButtonText: {
-      color: theme.colors.textSecondary,
-      fontWeight: '700',
-    },
+
     submitButton: {
       flex: 1,
-      backgroundColor: theme.colors.brandYellow,
+      backgroundColor: theme.colors.brandBlue,
       borderRadius: 12,
-      paddingVertical: 13,
+      paddingVertical: 14,
       alignItems: 'center',
     },
-    submitButtonText: {
-      color: theme.colors.white,
+
+    cancelText: {
+      color: '#fff',
       fontWeight: '700',
     },
+
+    submitText: {
+      color: '#fff',
+      fontWeight: '700',
+    },
+
     disabledButton: {
-      opacity: 0.6,
+      opacity: 0.5,
     },
   });
 }

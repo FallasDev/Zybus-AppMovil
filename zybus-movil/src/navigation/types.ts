@@ -1,3 +1,4 @@
+import type { Ticket } from '../modules/tickets/models/ticket.model';
 export type RootStackParamList = {
   Onboarding: undefined;
   Login: undefined;
@@ -13,4 +14,6 @@ export type RootStackParamList = {
   TripDetail: { tripId: string; passengers: number };
   SeatSelection: { tripId: string; passengers: number };
   Notifications: undefined;
+   TicketHistory: undefined;
+   TicketDetailScreen: { ticket: Ticket };
 };

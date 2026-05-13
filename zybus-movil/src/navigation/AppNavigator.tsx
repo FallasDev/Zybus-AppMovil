@@ -12,6 +12,8 @@ import { SeatSelectionScreen, SeatSelectionProvider } from '../modules/seat-sele
 import { NotificationsScreen, NotificationsProvider } from '../modules/notifications';
 import { MainTabs } from './MainTabs';
 import type { RootStackParamList } from './types';
+import { TicketHistoryScreen } from '../modules/tickets/views/TicketsHistoryScreen';
+import { TicketDetailScreen } from '../modules/tickets/views/TicketDetailScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -36,6 +38,8 @@ export const AppNavigator = (): ReactElement => {
               <Stack.Screen name="TripDetail" component={TripDetailScreen} />
               <Stack.Screen name="SeatSelection" component={SeatSelectionScreen} />
               <Stack.Screen name="Notifications" component={NotificationsScreen} />
+              <Stack.Screen name="TicketHistory" component={TicketHistoryScreen} />
+             <Stack.Screen name="TicketDetailScreen" component={TicketDetailScreen} />
             </Stack.Navigator>
           </SeatSelectionProvider>
         </TripDetailProvider>
