@@ -14,4 +14,5 @@ export type RootStackParamList = {
   SeatSelection: { tripId: string; passengers: number };
   TripTracking: { tripId: string };
   Notifications: undefined;
+  Profile: undefined;
 };
