@@ -14,7 +14,7 @@ export const darkTheme: AppTheme = {
     textOnBrand: '#ffffff',
     border: '#2a3d52',
     inputBackground: '#1a2736',
-    error: '#f87171',
+    error: '#9d1d14',
     errorSurface: '#2d1515',
     success: '#4ade80',
     overlay: 'rgba(0,0,0,0.6)',

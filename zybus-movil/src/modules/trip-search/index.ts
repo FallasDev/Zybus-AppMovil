@@ -1,0 +1,10 @@
+export { TripSearchScreen } from './views/TripSearchScreen';
+export { SearchResultsScreen } from './views/SearchResultsScreen';
+export { TripSearchProvider, useTripSearchStore } from './store/trip-search.store';
+export { useTripSearch } from './hooks/useTripSearch';
+export { tripSearchService } from './services/trip-search.service';
+export { mapTripSearchResultFromDTO, mapStopOptionFromDTO } from './models/trip-search.mapper';
+export { TripSearchForm } from './components/TripSearchForm';
+export { TripResultCard } from './components/TripResultCard';
+export { TripResultList } from './components/TripResultList';
+export type { TripSearchFormData, TripSearchResult, StopOption } from './models/trip-search.model';

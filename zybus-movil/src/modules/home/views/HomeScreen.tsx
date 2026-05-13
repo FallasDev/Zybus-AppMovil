@@ -1,59 +1,110 @@
 import type { ReactElement } from 'react';
-import { useMemo } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
-import { images } from '../../../shared/assets/images';
 import type { RootStackParamList } from '../../../navigation/types';
+import { images } from '../../../shared/assets/images';
 import { nearbyStops } from '../constants/home.mock';
 import { BusStopCard } from '../components/BusStopCard';
+import { useTripSearch } from '../../trip-search/hooks/useTripSearch';
+import { TripSearchForm } from '../../trip-search/components/TripSearchForm';
+import type { TripSearchFormData } from '../../trip-search/models/trip-search.model';
+import { useUnreadCount } from '../../notifications/store/notifications.store';
 
 type HomeNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+const initialFormData: TripSearchFormData = {
+  originStopId: '',
+  destinationStopId: '',
+  date: '',
+  passengers: 1,
+};
 
 export function HomeScreen(): ReactElement {
   const navigation = useNavigation<HomeNavigationProp>();
   const { theme } = useAppTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
+  const { stopOptions, isLoading, error, handleSearch } = useTripSearch();
+  const [formData, setFormData] = useState<TripSearchFormData>(initialFormData);
+  const unreadCount = useUnreadCount();
+
+  const handleChange = <K extends keyof TripSearchFormData>(
+    field: K,
+    value: TripSearchFormData[K]
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async () => {
+    const success = await handleSearch(formData);
+    if (success) {
+      navigation.navigate('SearchResults', {
+        originStopId: formData.originStopId,
+        destinationStopId: formData.destinationStopId,
+        date: formData.date,
+        passengers: formData.passengers,
+      });
+    }
+  };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.topRow}>
-        <View>
-          <Text style={styles.smallText}>Hola,</Text>
-          <Text style={styles.title}>Paradas de Autobús Cercanas</Text>
-        </View>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+    >
+      {/* Header: logo izquierda | campana + perfil derecha */}
+      <View style={styles.headerBar}>
+        <Image source={images.zybusLogo} style={styles.logo} resizeMode="contain" />
 
-        <View style={styles.profileCircle}>
-          <Text style={styles.profileText}>D</Text>
+        <View style={styles.headerActions}>
+          {/* Campana con badge */}
+          <TouchableOpacity
+            style={styles.bellWrap}
+            onPress={() => navigation.navigate('Notifications')}
+            activeOpacity={0.75}
+          >
+            <Ionicons
+              name="notifications-outline"
+              size={24}
+              color={theme.colors.textPrimary}
+            />
+            {unreadCount > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          {/* Círculo de perfil */}
+          <View style={styles.profileCircle}>
+            <Text style={styles.profileText}>DS</Text>
+          </View>
         </View>
       </View>
 
-      <View style={styles.mapCard}>
-        <Image
-          source={images.onboarding1}
-          style={styles.mapImage}
-          resizeMode="cover"
+      {/* Saludo */}
+      <Text style={styles.greeting}>¿A dónde vas hoy?</Text>
+
+      {/* Formulario de búsqueda */}
+      <View style={styles.searchSection}>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+        <TripSearchForm
+          formData={formData}
+          stopOptions={stopOptions}
+          isLoading={isLoading}
+          onChange={handleChange}
+          onSubmit={handleSubmit}
         />
-        <View style={styles.mapOverlay}>
-          <Text style={styles.mapOverlayText}>Vista previa del mapa</Text>
-        </View>
       </View>
 
-      <TouchableOpacity
-        activeOpacity={0.9}
-        style={styles.searchWrap}
-        onPress={() => navigation.navigate('AddDestination')}
-      >
-        <TextInput
-          editable={false}
-          placeholder="Añadir tu destino"
-          placeholderTextColor={theme.colors.textSecondary}
-          style={styles.searchInput}
-        />
-      </TouchableOpacity>
-
+      {/* Paradas cercanas */}
       <View style={styles.sectionRow}>
         <Text style={styles.sectionTitle}>Paradas Cercanas</Text>
         <TouchableOpacity onPress={() => navigation.navigate('BusRoute')}>
@@ -83,73 +134,92 @@ function makeStyles(theme: AppTheme) {
     content: {
       padding: 20,
       paddingTop: 52,
-      paddingBottom: 32,
+      paddingBottom: 40,
     },
-    topRow: {
+
+    /* Header bar */
+    headerBar: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
       alignItems: 'center',
+      justifyContent: 'space-between',
       marginBottom: 18,
     },
-    smallText: {
-      fontSize: 14,
-      color: theme.colors.textSecondary,
-      marginBottom: 4,
+    logo: {
+      width: 100,
+      height: 36,
     },
-    title: {
-      fontSize: 24,
+    headerActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+
+    /* Campana con badge */
+    bellWrap: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: theme.colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    badge: {
+      position: 'absolute',
+      top: 4,
+      right: 4,
+      minWidth: 16,
+      height: 16,
+      borderRadius: 8,
+      backgroundColor: theme.colors.error,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 3,
+    },
+    badgeText: {
+      color: theme.colors.white,
+      fontSize: 9,
       fontWeight: '700',
-      color: theme.colors.textPrimary,
     },
+
+    /* Perfil */
     profileCircle: {
-      width: 42,
-      height: 42,
-      borderRadius: 21,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
       backgroundColor: theme.colors.brandBlue,
       alignItems: 'center',
       justifyContent: 'center',
     },
     profileText: {
       color: theme.colors.white,
-      fontSize: 16,
+      fontSize: 13,
       fontWeight: '700',
     },
-    mapCard: {
-      height: 240,
-      borderRadius: 18,
-      overflow: 'hidden',
-      marginBottom: 18,
-      backgroundColor: theme.colors.surfaceAlt,
-      position: 'relative',
-    },
-    mapImage: {
-      width: '100%',
-      height: '100%',
-    },
-    mapOverlay: {
-      position: 'absolute',
-      left: 16,
-      bottom: 16,
-      backgroundColor: theme.colors.overlay,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 8,
-    },
-    mapOverlayText: {
-      color: theme.colors.white,
-      fontSize: 14,
+
+    greeting: {
+      fontSize: 24,
       fontWeight: '700',
-    },
-    searchWrap: {
-      marginBottom: 18,
-    },
-    searchInput: {
-      height: 54,
-      backgroundColor: theme.colors.surface,
-      borderRadius: 10,
-      paddingHorizontal: 16,
-      fontSize: 15,
       color: theme.colors.textPrimary,
+      marginBottom: 16,
+    },
+    searchSection: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: 18,
+      padding: 16,
+      marginBottom: 24,
+      shadowColor: theme.colors.black,
+      shadowOpacity: 0.06,
+      shadowRadius: 10,
+      shadowOffset: { width: 0, height: 2 },
+      elevation: 3,
+    },
+    error: {
+      backgroundColor: theme.colors.errorSurface,
+      color: theme.colors.error,
+      borderRadius: 10,
+      padding: 12,
+      marginBottom: 8,
+      fontSize: 13,
     },
     sectionRow: {
       flexDirection: 'row',
