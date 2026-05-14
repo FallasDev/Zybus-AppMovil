@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import { OnboardingScreen } from '../modules/onboarding';
 import { LoginScreen, RegisterScreen, VerificationScreen } from '../modules/auth';
 import { AddDestinationScreen, BusRouteScreen } from '../modules/home';
@@ -13,9 +14,17 @@ import { TripTrackingScreen, TrackingProvider } from '../modules/tracking';
 import { NotificationsScreen, NotificationsProvider } from '../modules/notifications';
 import { ProfileScreen } from '../modules/profile';
 import { ProfileProvider } from '../modules/profile/store/profile.store';
+import {
+  PurchaseSummaryView,
+  PaymentMethodView,
+  PaymentConfirmationView,
+  DigitalTicketView,
+  PurchasePaymentProvider,
+} from '../modules/purchase-payment';
 
 import { MainTabs } from './MainTabs';
 import type { RootStackParamList } from './types';
+
 import { TicketHistoryScreen } from '../modules/tickets/views/TicketsHistoryScreen';
 import { TicketDetailScreen } from '../modules/tickets/views/TicketDetailScreen';
 
@@ -29,27 +38,42 @@ export const AppNavigator = (): ReactElement => {
           <TripSearchProvider>
             <TripDetailProvider>
               <SeatSelectionProvider>
-            <TrackingProvider>
-                  <Stack.Navigator initialRouteName="Onboarding" screenOptions={{ headerShown: false }}>
-                    <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-                    <Stack.Screen name="Login" component={LoginScreen} />
-                    <Stack.Screen name="Register" component={RegisterScreen} />
-                    <Stack.Screen name="Verification" component={VerificationScreen} />
-                    <Stack.Screen name="MainTabs" component={MainTabs} />
-                    <Stack.Screen name="AddDestination" component={AddDestinationScreen} />
-                    <Stack.Screen name="BusRoute" component={BusRouteScreen} />
-                    <Stack.Screen name="Users" component={UsersScreen} />
-                    <Stack.Screen name="Tickets" component={TicketsScreen} />
-                    <Stack.Screen name="SearchResults" component={SearchResultsScreen} />
-                    <Stack.Screen name="TripDetail" component={TripDetailScreen} />
-                    <Stack.Screen name="SeatSelection" component={SeatSelectionScreen} />
-                <Stack.Screen name="TripTracking" component={TripTrackingScreen} />
-                    <Stack.Screen name="Notifications" component={NotificationsScreen} />
-                    <Stack.Screen name="Profile" component={ProfileScreen} />
-                  <Stack.Screen name="TicketHistory" component={TicketHistoryScreen} />
-             <Stack.Screen name="TicketDetailScreen" component={TicketDetailScreen} />
-            </Stack.Navigator>
-            </TrackingProvider>
+                <TrackingProvider>
+                  <PurchasePaymentProvider>
+                    <Stack.Navigator
+                      initialRouteName="Onboarding"
+                      screenOptions={{ headerShown: false }}
+                    >
+                      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+                      <Stack.Screen name="Login" component={LoginScreen} />
+                      <Stack.Screen name="Register" component={RegisterScreen} />
+                      <Stack.Screen name="Verification" component={VerificationScreen} />
+
+                      <Stack.Screen name="MainTabs" component={MainTabs} />
+
+                      <Stack.Screen name="AddDestination" component={AddDestinationScreen} />
+                      <Stack.Screen name="BusRoute" component={BusRouteScreen} />
+                      <Stack.Screen name="Users" component={UsersScreen} />
+
+                      <Stack.Screen name="Tickets" component={TicketsScreen} />
+                      <Stack.Screen name="TicketHistory" component={TicketHistoryScreen} />
+                      <Stack.Screen name="TicketDetailScreen" component={TicketDetailScreen} />
+
+                      <Stack.Screen name="SearchResults" component={SearchResultsScreen} />
+                      <Stack.Screen name="TripDetail" component={TripDetailScreen} />
+                      <Stack.Screen name="SeatSelection" component={SeatSelectionScreen} />
+                      <Stack.Screen name="TripTracking" component={TripTrackingScreen} />
+
+                      <Stack.Screen name="PurchaseSummary" component={PurchaseSummaryView} />
+                      <Stack.Screen name="PaymentMethod" component={PaymentMethodView} />
+                      <Stack.Screen name="PaymentConfirmation" component={PaymentConfirmationView} />
+                      <Stack.Screen name="DigitalTicket" component={DigitalTicketView} />
+
+                      <Stack.Screen name="Notifications" component={NotificationsScreen} />
+                      <Stack.Screen name="Profile" component={ProfileScreen} />
+                    </Stack.Navigator>
+                  </PurchasePaymentProvider>
+                </TrackingProvider>
               </SeatSelectionProvider>
             </TripDetailProvider>
           </TripSearchProvider>
