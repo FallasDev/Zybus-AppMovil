@@ -10,7 +10,7 @@ import type { RootStackParamList } from '../../../navigation/types';
 
 import { usePurchasePaymentStore } from '../store/purchase-payment.store';
 
-import { PaymentSummaryCard, PurchaseSummaryFooter, PurchaseTicketDetailCard, TicketTypeSummaryCard, } from '../components';
+import { PaymentSummaryCard, PurchaseSummaryFooter, PurchaseTicketDetailCard, TicketTypeSummaryCard, } from '../index';
 
 type PurchaseSummaryNavProp = NativeStackNavigationProp<
   RootStackParamList,

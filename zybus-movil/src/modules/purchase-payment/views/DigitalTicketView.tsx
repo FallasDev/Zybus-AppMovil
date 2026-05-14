@@ -24,7 +24,7 @@ import {
   TripRouteCard,
   TicketDetailsCard,
   PaymentStatusCard,
-} from '../components';
+} from '../index';
 
 type DigitalTicketNavProp = NativeStackNavigationProp<
   RootStackParamList,

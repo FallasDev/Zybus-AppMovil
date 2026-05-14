@@ -1,3 +1,4 @@
+import { InitialState } from "@react-navigation/native";
 import { SelectedSeat } from "../modules/seat-selection/models/seat-selection.model";
 
 export type RootStackParamList = {
@@ -16,9 +17,9 @@ export type RootStackParamList = {
   Notifications: undefined;
   PurchaseSummary: {
   tripId: string;
+  passenger:InitialState;
   usesSeats: boolean;
-  selectedSeats: {
-    id?: string;
+  selectedSeats: { id?: string;
     seatCode: string;
     passengerType: string;
     status?: string;
