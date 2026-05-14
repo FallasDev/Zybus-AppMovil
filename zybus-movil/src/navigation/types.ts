@@ -13,9 +13,23 @@ export type RootStackParamList = {
   TripSearch: undefined;
   SearchResults: { originStopId: string; destinationStopId: string; date: string; passengers: number };
   TripDetail: { tripId: string; passengers: number };
-  SeatSelection: { tripId: string; passengers: number };
   Notifications: undefined;
-  PurchaseSummary: { tripId: string; passengers: number; selectedSeats: SelectedSeat[];};
+  PurchaseSummary: {
+  tripId: string;
+  usesSeats: boolean;
+  selectedSeats: {
+    id?: string;
+    seatCode: string;
+    passengerType: string;
+    status?: string;
+  }[];
+};
+
+SeatSelection: {
+  tripId: string;
+  passengers: number;
+  usesSeats?: boolean;
+};
   PaymentMethod: { purchaseData: any;};
   PaymentConfirmation: { purchaseData: any; paymentMethod: string; paymentStatus: 'approved' | 'rejected'; confirmationNumber: string;
 };

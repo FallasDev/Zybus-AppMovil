@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { PurchasePayment, PurchasePaymentFormData } from '../models/purchase-payment.model';
-import { purchasePaymentService } from '../services/payment-payment.service';
+import { purchasePaymentService } from '../services/purchase-payment.service';
 
 export const usePurchasePayment = () => {
   const [purchase, setPurchase] = useState<PurchasePayment | null>(null);

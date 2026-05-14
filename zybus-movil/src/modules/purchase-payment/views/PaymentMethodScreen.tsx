@@ -71,7 +71,7 @@ return (
     <View style={styles.footer}>
       <View style={styles.summaryCard}>
         <Text style={styles.summaryText}>Total a pagar</Text>
-        <Text style={styles.total}>₡5500{purchaseData.finalPrice}</Text>
+        <Text style={styles.total}>₡{purchaseData.total}</Text>
       </View>
 
       <TouchableOpacity style={styles.primaryButton} onPress={handlePayment}>

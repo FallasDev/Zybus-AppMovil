@@ -1,17 +1,8 @@
 import type { ReactElement } from 'react';
 import { useMemo } from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {ScrollView, StyleSheet, Text, TouchableOpacity, View, } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import type {
-  NativeStackNavigationProp,
-  NativeStackScreenProps,
-} from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp, NativeStackScreenProps, } from '@react-navigation/native-stack';
 
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
@@ -19,12 +10,7 @@ import type { RootStackParamList } from '../../../navigation/types';
 
 import { usePurchasePaymentStore } from '../store/purchase-payment.store';
 
-import {
-  PaymentSummaryCard,
-  PurchaseSummaryFooter,
-  PurchaseTicketDetailCard,
-  TicketTypeSummaryCard,
-} from '../components/Index';
+import { PaymentSummaryCard, PurchaseSummaryFooter, PurchaseTicketDetailCard, TicketTypeSummaryCard, } from '../components';
 
 type PurchaseSummaryNavProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -43,7 +29,7 @@ export function PurchaseSummaryView(): ReactElement {
 
   const { setSelectedTicket } = usePurchasePaymentStore();
 
-  const { tripId, selectedSeats } = route.params;
+  const { tripId, selectedSeats, usesSeats, } = route.params;
 
   const ticketUnitPrice = 5500;
   const ticketQuantity = selectedSeats.length;
@@ -60,25 +46,28 @@ export function PurchaseSummaryView(): ReactElement {
   ).length;
 
   const purchaseData = useMemo(
-    () => ({
-      ticketId: tripId.toString(),
-      title: `Viaje #${tripId}`,
-      route: 'San José - Limón',
-      seatNumber: seatCodes,
-      ownerUserId: 'user-1',
-      paymentMethodId: 0,
-      total,
-      paymentStatus: 'pending',
-      salesChannelId: 1,
-      purchaseDate: new Date().toISOString(),
-      departurePoint: 'San José',
-      arrivalPoint: 'Limón',
-      duration: '2h 30min',
-      date: new Date().toLocaleDateString(),
-      departureTime: '07:00 AM',
-    }),
-    [tripId, seatCodes, total]
-  );
+  () => ({
+    ticketId: tripId.toString(),
+    title: `Viaje #${tripId}`,
+    route: 'San José - Limón',
+    seatNumber: usesSeats
+      ? seatCodes
+      : 'Sin numeración',
+    usesSeats,
+    ownerUserId: 'user-1',
+    paymentMethodId: 0,
+    total,
+    paymentStatus: 'pending',
+    salesChannelId: 1,
+    purchaseDate: new Date().toISOString(),
+    departurePoint: 'San José',
+    arrivalPoint: 'Limón',
+    duration: '2h 30min',
+    date: new Date().toLocaleDateString(),
+    departureTime: '07:00 AM',
+  }),
+  [tripId, seatCodes, total, usesSeats]
+);
 
   const handleContinueToPayment = () => {
     setSelectedTicket({
@@ -117,7 +106,7 @@ export function PurchaseSummaryView(): ReactElement {
           arrivalPoint={purchaseData.arrivalPoint}
           duration={purchaseData.duration}
           ticketQuantity={ticketQuantity}
-          seatCodes={seatCodes}
+          seatCodes={purchaseData.seatNumber}
         />
 
         <TicketTypeSummaryCard

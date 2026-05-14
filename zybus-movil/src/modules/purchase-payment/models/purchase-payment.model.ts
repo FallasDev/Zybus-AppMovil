@@ -10,6 +10,7 @@ export interface PurchasePayment {
   paymentStatus: string;
   salesChannelId: number;
   purchaseDate: string;
+  hasNumberedSeats?: boolean;
 }
 
 export interface PurchasePaymentFormData {
@@ -20,6 +21,13 @@ export interface PurchasePaymentFormData {
   ownerUserId: string;
   paymentMethodId: number;
   total: number;
+
+  departurePoint?: string;
+  arrivalPoint?: string;
+  duration?: string;
+  date?: string;
+  departureTime?: string;
+  hasNumberedSeats?: boolean;
 }
 
 export const createPurchasePaymentModel = ({

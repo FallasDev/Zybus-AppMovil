@@ -27,18 +27,32 @@ export function TripDetailScreen(): ReactElement {
   const [passengerCount] = useState(initialPassengers || 1);
   const { tripDetail, isLoading, error } = useTripDetail(tripId);
 
-  const handleContinue = () => {
-    if (!tripDetail) return;
-    if (tripDetail.bus.usesSeats) {
-      navigation.navigate('SeatSelection', { tripId, passengers: passengerCount });
-    } else {
-      Alert.alert(
-        'Sin selección de asiento',
-        'Este servicio no asigna asientos. Tu lugar es de primera llegada.',
-        [{ text: 'Entendido' }]
-      );
-    }
-  };
+ const handleContinue = () => {
+  if (!tripDetail) return;
+
+  if (tripDetail.bus.usesSeats) {
+    navigation.navigate('SeatSelection', {
+      tripId,
+      passengers: passengerCount,
+      usesSeats: true,
+    });
+
+    return;
+  }
+
+  navigation.navigate('PurchaseSummary', {
+    tripId,
+    usesSeats: false,
+    selectedSeats: [
+      {
+        id: 'no-seat',
+        seatCode: 'Sin numeración',
+        passengerType: 'regular',
+        status: 'available',
+      },
+    ],
+  });
+};
 
   return (
     <View style={styles.container}>

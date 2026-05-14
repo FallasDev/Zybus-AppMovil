@@ -1,38 +1,34 @@
-import { Purchase } from './purchase-payment.model';
-import { PurchaseDto } from './purchase-payment.dto';
+import type { PurchasePaymentDto } from './purchase-payment.dto';
+import type { PurchasePayment } from './purchase-payment.model';
 
-export const fromDtoToPurchase = (
-  dto: PurchaseDto
-): Purchase => ({
+export const fromDtoToPurchasePayment = (
+  dto: PurchasePaymentDto
+): PurchasePayment => ({
   id: dto.id,
-  userId: dto.user_id,
-  sellerUserId: dto.seller_user_id,
-  salesChannelId: dto.sales_channel_id,
+  ticketId: dto.ticket_id,
+  title: dto.title,
+  route: dto.route,
+  seatNumber: dto.seat_number,
+  ownerUserId: dto.owner_user_id,
   paymentMethodId: dto.payment_method_id,
   total: dto.total,
+  paymentStatus: dto.payment_status,
+  salesChannelId: dto.sales_channel_id,
   purchaseDate: dto.purchase_date,
-  notes: dto.notes,
-  stateId: dto.state_id,
-  isActive: dto.is_active,
-  createdAt: dto.created_at,
-  updatedAt: dto.updated_at,
-  deletedAt: dto.deleted_at,
 });
 
-export const fromPurchaseToDto = (
-  purchase: Purchase
-): PurchaseDto => ({
+export const fromPurchasePaymentToDto = (
+  purchase: PurchasePayment
+): PurchasePaymentDto => ({
   id: purchase.id,
-  user_id: purchase.userId,
-  seller_user_id: purchase.sellerUserId,
-  sales_channel_id: purchase.salesChannelId,
+  ticket_id: purchase.ticketId,
+  title: purchase.title,
+  route: purchase.route,
+  seat_number: purchase.seatNumber,
+  owner_user_id: purchase.ownerUserId,
   payment_method_id: purchase.paymentMethodId,
   total: purchase.total,
+  payment_status: purchase.paymentStatus,
+  sales_channel_id: purchase.salesChannelId,
   purchase_date: purchase.purchaseDate,
-  notes: purchase.notes,
-  state_id: purchase.stateId,
-  is_active: purchase.isActive,
-  created_at: purchase.createdAt,
-  updated_at: purchase.updatedAt,
-  deleted_at: purchase.deletedAt,
 });
