@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { useState } from 'react';
-import { View, ScrollView, KeyboardAvoidingView, Platform, Text, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import FormInput from './FormInput';
 import PrimaryButton from './PrimaryButton';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
@@ -30,8 +30,7 @@ export default function RegisterForm({ navigation }: Props): ReactElement {
   const { handleRegister, isLoading, error } = useAuth();
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 28 }} keyboardShouldPersistTaps="handled">
+    <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 28 }} keyboardShouldPersistTaps="handled" style={{ flex: 1 }}>
         {step === 1 && (
           <>
             <View style={{ flexDirection: 'row', gap: 12 }}>
@@ -88,7 +87,6 @@ export default function RegisterForm({ navigation }: Props): ReactElement {
             <Text style={{ color: theme.colors.brandBlue, fontSize: 15, fontWeight: '800' }}>Inicia sesión</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </ScrollView>
   );
 }

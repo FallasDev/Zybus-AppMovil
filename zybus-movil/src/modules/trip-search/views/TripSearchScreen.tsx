@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
@@ -13,10 +13,18 @@ import { TRIP_SEARCH_TEXT } from '../constants/trip-search.constants';
 
 type TripSearchNavProp = NativeStackNavigationProp<RootStackParamList, 'TripSearch'>;
 
+function getTodayString(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 const initialFormData: TripSearchFormData = {
   originStopId: '',
   destinationStopId: '',
-  date: '',
+  date: getTodayString(),
   passengers: 1,
   normales: 1,
   adultosMayores: 0,
@@ -73,19 +81,24 @@ export function TripSearchScreen(): ReactElement {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.inner}>
-        <Text style={styles.title}>{TRIP_SEARCH_TEXT.TITLE}</Text>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-        <TripSearchForm
-          formData={formData}
-          stopOptions={stopOptions}
-          isLoading={isLoading}
-          onChange={handleChange}
-          onSubmit={handleSubmit}
-        />
-      </View>
-    </ScrollView>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView style={styles.flex} contentContainerStyle={styles.content}>
+        <View style={styles.inner}>
+          <Text style={styles.title}>{TRIP_SEARCH_TEXT.TITLE}</Text>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <TripSearchForm
+            formData={formData}
+            stopOptions={stopOptions}
+            isLoading={isLoading}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
+          />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -97,6 +110,9 @@ function makeStyles(theme: AppTheme, isTablet: boolean, windowWidth: number) {
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
+    },
+    flex: {
+      flex: 1,
     },
     content: {
       flexGrow: 1,

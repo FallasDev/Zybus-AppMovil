@@ -10,7 +10,7 @@ export const validateTripSearchForm = (data: TripSearchFormData): TripSearchErro
   if (!data.date.trim()) return TRIP_SEARCH_ERRORS.DATE_REQUIRED;
   if (!dateRegex.test(data.date.trim())) return TRIP_SEARCH_ERRORS.DATE_INVALID_FORMAT;
 
-  const selectedDate = new Date(data.date);
+  const selectedDate = new Date(`${data.date}T00:00:00`);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   if (selectedDate < today) return TRIP_SEARCH_ERRORS.DATE_IN_PAST;

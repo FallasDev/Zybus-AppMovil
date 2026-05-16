@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { BusPosition, TrackingStop } from '../models/tracking.model';
 
 interface TrackingMapProps {
@@ -51,11 +52,14 @@ export function TrackingMap({ stops, busPosition }: TrackingMapProps): ReactElem
         {busPosition && (
           <Marker
             coordinate={{ latitude: busPosition.latitude, longitude: busPosition.longitude }}
-            title="Bus"
+            title="Bus en ruta"
             anchor={{ x: 0.5, y: 0.5 }}
           >
-            <View style={styles.busMarker}>
-              <View style={styles.busIcon} />
+            <View style={styles.busMarkerContainer}>
+              <View style={styles.busMarker}>
+                <MaterialCommunityIcons name="bus" size={22} color="#FFFFFF" />
+              </View>
+              <View style={styles.busMarkerTail} />
             </View>
           </Marker>
         )}
@@ -72,21 +76,30 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
   },
-  busMarker: {
+  busMarkerContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  busIcon: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#F59E0B',
-    borderWidth: 3,
+  busMarker: {
+    backgroundColor: '#1A56DB',
+    borderRadius: 12,
+    padding: 7,
+    borderWidth: 2.5,
     borderColor: '#FFFFFF',
     shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 4,
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 6,
+  },
+  busMarkerTail: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 8,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: '#1A56DB',
+    marginTop: -1,
   },
 });

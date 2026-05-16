@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { useMemo } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
@@ -8,6 +8,7 @@ import type { RootStackParamList } from '../../../navigation/types';
 import BackButton from '../components/BackButton';
 import AuthHeader from '../components/AuthHeader';
 import RegisterForm from '../components/RegisterForm';
+import { KeyboardAwareScreen } from '../../../shared/components';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
@@ -17,11 +18,11 @@ export function RegisterScreen({ navigation }: Props): ReactElement {
   
 
   return (
-    <KeyboardAvoidingView style={styles.keyboardView} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAwareScreen backgroundColor={theme.colors.surface}>
       <BackButton onPress={() => navigation.goBack()} />
       <AuthHeader title="Crea tu cuenta" />
       <RegisterForm navigation={navigation} />
-    </KeyboardAvoidingView>
+    </KeyboardAwareScreen>
   );
 }
 

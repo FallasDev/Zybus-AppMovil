@@ -8,6 +8,7 @@ import type { RootStackParamList } from '../../../navigation/types';
 import BackButton from '../components/BackButton';
 import AuthHeader from '../components/AuthHeader';
 import VerificationForm from '../components/VerificationForm';
+import { KeyboardAwareScreen } from '../../../shared/components';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Verification'>;
 
@@ -18,19 +19,21 @@ export function VerificationScreen({ navigation }: Props): ReactElement {
   
 
   return (
-    <View style={styles.container}>
-      <BackButton onPress={() => navigation.goBack()} />
-      <AuthHeader title="Verificación" showLogo />
-      <Text style={styles.description}>Ingresa el código de 4 dígitos que enviamos al número proporcionado.</Text>
-      <VerificationForm navigation={navigation} />
+    <KeyboardAwareScreen backgroundColor={theme.colors.surface}>
+      <View style={styles.container}>
+        <BackButton onPress={() => navigation.goBack()} />
+        <AuthHeader title="Verificación" showLogo />
+        <Text style={styles.description}>Ingresa el código de 4 dígitos que enviamos al número proporcionado.</Text>
+        <VerificationForm navigation={navigation} />
 
-      <View pointerEvents="none">
-        <Image
-          source={require('../../../shared/assets/images/bus_login_regis.png')}
-          style={styles.backgroundImage}
-        />
+        <View pointerEvents="none">
+          <Image
+            source={require('../../../shared/assets/images/sinfondo.png')}
+            style={styles.backgroundImage}
+          />
+        </View>
       </View>
-    </View>
+    </KeyboardAwareScreen>
   );
 }
 
@@ -38,9 +41,8 @@ function makeStyles(theme: AppTheme) {
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.surface,
       paddingHorizontal: 24,
-      paddingTop: 60,
+      paddingTop: 16,
     },
     backButton: {
       width: 42,

@@ -4,10 +4,10 @@ import { colors } from '../theme/colors';
 
 export function MyStatusBar(): ReactElement {
   return (
-    <SafeAreaView style={{ backgroundColor: colors.templatePrimary }}>
+    <SafeAreaView style={{ backgroundColor: colors.brandBlue }}>
       <StatusBar
         translucent={false}
-        backgroundColor={colors.templatePrimary}
+        backgroundColor={colors.brandBlue}
         barStyle="light-content"
       />
     </SafeAreaView>

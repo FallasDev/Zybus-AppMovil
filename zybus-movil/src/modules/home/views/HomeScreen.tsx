@@ -155,7 +155,7 @@ function makeStyles(theme: AppTheme) {
     },
     logo: {
       width: 100,
-      height: 36,
+      height: 76,
     },
     headerActions: {
       flexDirection: 'row',

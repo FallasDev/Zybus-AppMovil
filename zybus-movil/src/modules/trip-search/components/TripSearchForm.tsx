@@ -31,9 +31,18 @@ interface TripSearchFormProps {
 type PickerTarget = 'origin' | 'destination' | null;
 
 const parseDate = (dateStr: string): Date => {
-  if (!dateStr) return new Date();
+  if (!dateStr) {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
   const parsed = new Date(`${dateStr}T00:00:00`);
-  return isNaN(parsed.getTime()) ? new Date() : parsed;
+  if (isNaN(parsed.getTime())) {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+  return parsed;
 };
 
 const formatDateForStorage = (date: Date): string => {
@@ -59,12 +68,18 @@ export function TripSearchForm({
   onChange,
   onSubmit,
 }: TripSearchFormProps): ReactElement {
-  const { theme } = useAppTheme();
+  const { theme, mode } = useAppTheme();
   const { width: windowWidth } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(theme, windowWidth, insets.bottom), [theme, windowWidth, insets.bottom]);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const todayStart = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
 
   const originName = stopOptions.find((s) => s.id === formData.originStopId)?.name ?? '';
   const destName = stopOptions.find((s) => s.id === formData.destinationStopId)?.name ?? '';
@@ -197,7 +212,7 @@ export function TripSearchForm({
           mode="date"
           display="default"
           value={parseDate(formData.date)}
-          minimumDate={new Date()}
+          minimumDate={todayStart}
           onChange={handleDateChange}
         />
       )}
@@ -222,9 +237,10 @@ export function TripSearchForm({
                 mode="date"
                 display="inline"
                 value={parseDate(formData.date)}
-                minimumDate={new Date()}
+                minimumDate={todayStart}
                 onChange={handleDateChange}
                 locale="es"
+                themeVariant={mode === 'dark' ? 'dark' : 'light'}
                 style={styles.inlinePicker}
               />
             </View>

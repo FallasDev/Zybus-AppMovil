@@ -12,6 +12,7 @@ import FormInput from '../components/FormInput';
 import PrimaryButton from '../components/PrimaryButton';
 import Divider from '../components/Divider';
 import SocialButton from '../components/SocialButton';
+import { KeyboardAwareScreen } from '../../../shared/components';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -26,7 +27,8 @@ export function LoginScreen({ navigation }: Props): ReactElement {
   const { handleLogin, isLoading, error } = useAuth();
 
   return (
-    <View style={styles.container}>
+    <KeyboardAwareScreen backgroundColor={theme.colors.surface}>
+      <View style={styles.container}>
       <AuthHeader title="Bienvenido de nuevo" subtitle="Inicia sesión para continuar" />
 
       <View style={styles.form}>
@@ -79,11 +81,12 @@ export function LoginScreen({ navigation }: Props): ReactElement {
 
       <View pointerEvents="none">
         <Image
-          source={require('../../../shared/assets/images/bus_login_regis.png')}
+          source={require('../../../shared/assets/images/sinfondo.png')}
           style={styles.backgroundImage}
         />
       </View>
-    </View>
+      </View>
+    </KeyboardAwareScreen>
   );
 }
 
@@ -91,9 +94,8 @@ function makeStyles(theme: AppTheme) {
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.surface,
       paddingHorizontal: 24,
-      paddingTop: 60,
+      paddingTop: 16,
     },
     logoBox: {
       alignSelf: 'center',

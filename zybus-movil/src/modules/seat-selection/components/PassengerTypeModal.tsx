@@ -1,8 +1,10 @@
 import type { ReactElement } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Keyboard,
   Modal,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -11,6 +13,7 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
 import type { PassengerType, Seat } from '../models/seat-selection.model';
@@ -31,10 +34,26 @@ export function PassengerTypeModal({
 }: PassengerTypeModalProps): ReactElement {
   const { theme } = useAppTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
+  const insets = useSafeAreaInsets();
 
   const [step, setStep] = useState<Step>('type');
   const [cedula, setCedula] = useState('');
   const [cedulaError, setCedulaError] = useState('');
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios') return;
+    const show = Keyboard.addListener('keyboardWillShow', (e) => {
+      setKeyboardOffset(e.endCoordinates.height);
+    });
+    const hide = Keyboard.addListener('keyboardWillHide', () => {
+      setKeyboardOffset(0);
+    });
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
 
   const resetState = () => {
     setStep('type');
@@ -81,8 +100,17 @@ export function PassengerTypeModal({
       animationType="slide"
       onRequestClose={handleCancel}
     >
-      <View style={styles.overlay}>
-        <View style={styles.sheet}>
+      <Pressable style={styles.overlay} onPress={Keyboard.dismiss}>
+        <Pressable
+          style={[
+            styles.sheet,
+            {
+              paddingBottom: Math.max(insets.bottom, 16) + 8,
+              marginBottom: keyboardOffset,
+            },
+          ]}
+          onPress={() => {}}
+        >
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>
@@ -169,8 +197,8 @@ export function PassengerTypeModal({
               </TouchableOpacity>
             </>
           )}
-        </View>
-      </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }
@@ -187,7 +215,6 @@ function makeStyles(theme: AppTheme) {
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
       padding: 24,
-      paddingBottom: 40,
       gap: 16,
     },
     header: {

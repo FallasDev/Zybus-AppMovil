@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import {
+  Modal,
   View,
   Text,
   TextInput,
   StyleSheet,
   TouchableOpacity,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Filters = {
   from: Date;
@@ -24,6 +27,8 @@ type Props = {
 
 export function TicketFilters({ filters, onChangeFilter }: Props) {
   const [openFrom, setOpenFrom] = useState(false);
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
 
   const today = new Date();
 
@@ -119,25 +124,55 @@ export function TicketFilters({ filters, onChangeFilter }: Props) {
         </Text>
       </View>
 
-      {/* DATE PICKER MOBILE */}
-      {Platform.OS !== 'web' && openFrom && (
+      {/* DATE PICKER ANDROID */}
+      {Platform.OS === 'android' && openFrom && (
         <DateTimePicker
-            value={filters.from}
-            mode="date"
-            display="calendar"
-            maximumDate={today}
-            onChange={(event, selectedDate) => {
+          value={filters.from}
+          mode="date"
+          display="default"
+          maximumDate={today}
+          onChange={(event, selectedDate) => {
             setOpenFrom(false);
-
             if (selectedDate) {
-              onChangeFilter({
-                ...filters,
-                from: selectedDate,
-                to: today,
-              });
+              onChangeFilter({ ...filters, from: selectedDate, to: today });
             }
           }}
         />
+      )}
+
+      {/* DATE PICKER iOS — dentro de Modal para evitar que quede cortado */}
+      {Platform.OS === 'ios' && (
+        <Modal
+          visible={openFrom}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setOpenFrom(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalSheet, { paddingBottom: Math.max(insets.bottom, 16) + 8 }]}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Seleccionar fecha</Text>
+                <TouchableOpacity onPress={() => setOpenFrom(false)}>
+                  <Text style={styles.modalDone}>Listo</Text>
+                </TouchableOpacity>
+              </View>
+              <DateTimePicker
+                value={filters.from}
+                mode="date"
+                display="inline"
+                maximumDate={today}
+                locale="es"
+                themeVariant="light"
+                style={{ width }}
+                onChange={(event, selectedDate) => {
+                  if (selectedDate) {
+                    onChangeFilter({ ...filters, from: selectedDate, to: today });
+                  }
+                }}
+              />
+            </View>
+          </View>
+        </Modal>
       )}
     </View>
   );
@@ -199,5 +234,34 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
+  },
+
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  modalSheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#111',
+  },
+  modalDone: {
+    fontSize: 15,
+    color: '#007AFF',
+    fontWeight: '600',
   },
 });
