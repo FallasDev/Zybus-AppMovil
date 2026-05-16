@@ -33,7 +33,7 @@ export const TICKETS_SCREEN_TEXT = {
   TITLE: 'Mis Tiquetes',
 
   SUBTITLE:
-    'Administra tus viajes y reservaciones',
+    'Administra tus tiquetes y reservaciones',
 
   LOADING: 'Cargando tiquetes...',
 

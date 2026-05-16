@@ -1,4 +1,7 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { useMemo } from 'react';
+import { useAppTheme } from '../../../shared/hooks/useAppTheme';
+import type { AppTheme } from '../../../shared/theme/types';
 
 import {
   TICKET_STATUS,
@@ -15,10 +18,10 @@ const tabs: TicketStatus[] = [
   TICKET_STATUS.USED,
 ];
 
-export function TicketTabs({
-  selectedTab,
-  onChangeTab,
-}: Props) {
+export function TicketTabs({ selectedTab, onChangeTab }: Props) {
+  const { theme } = useAppTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
+
   return (
     <View style={styles.container}>
       {tabs.map((tab) => {
@@ -27,18 +30,10 @@ export function TicketTabs({
         return (
           <Pressable
             key={tab}
-            style={[
-              styles.tab,
-              isActive && styles.activeTab,
-            ]}
+            style={[styles.tab, isActive && styles.activeTab]}
             onPress={() => onChangeTab(tab)}
           >
-            <Text
-              style={[
-                styles.text,
-                isActive && styles.activeText,
-              ]}
-            >
+            <Text style={[styles.text, isActive && styles.activeText]}>
               {formatLabel(tab)}
             </Text>
           </Pressable>
@@ -47,8 +42,6 @@ export function TicketTabs({
     </View>
   );
 }
-
-/* ================= LABELS ================= */
 
 function formatLabel(status: TicketStatus) {
   switch (status) {
@@ -61,34 +54,34 @@ function formatLabel(status: TicketStatus) {
   }
 }
 
-/* ================= STYLE (tipo toggle moderno) ================= */
+function makeStyles(theme: AppTheme) {
+  return StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      backgroundColor: theme.colors.surface,
+      borderRadius: 30,
+      padding: 4,
+      marginBottom: 16,
+    },
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    backgroundColor: '#E9E6F3',
-    borderRadius: 30,
-    padding: 4,
-    marginBottom: 16,
-  },
+    tab: {
+      flex: 1,
+      paddingVertical: 10,
+      borderRadius: 30,
+      alignItems: 'center',
+    },
 
-  tab: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 30,
-    alignItems: 'center',
-  },
+    activeTab: {
+      backgroundColor: theme.colors.brandBlue,
+    },
 
-  activeTab: {
-    backgroundColor: '#152f52',
-  },
+    text: {
+      color: theme.colors.textSecondary,
+      fontWeight: '600',
+    },
 
-  text: {
-    color: '#555',
-    fontWeight: '600',
-  },
-
-  activeText: {
-    color: '#fff',
-  },
-});
+    activeText: {
+      color: theme.colors.white,
+    },
+  });
+}

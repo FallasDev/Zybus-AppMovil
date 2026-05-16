@@ -7,7 +7,7 @@ export type RootStackParamList = {
   Register: undefined;
   Verification: undefined;
 
-  MainTabs: undefined;
+   MainTabs: undefined;
 
   AddDestination: undefined;
   BusRoute: undefined;
@@ -64,4 +64,5 @@ export type RootStackParamList = {
     purchaseData: any;
     confirmationNumber: string;
   };
+    
 };

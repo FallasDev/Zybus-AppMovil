@@ -241,7 +241,7 @@ function makeStyles(theme: AppTheme) {
 
       fontSize: 14,
 
-      color: '#111827',
+      color: theme.colors.brandBlue,
     },
 
     /* ROUTE */

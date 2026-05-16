@@ -140,7 +140,7 @@ export function TicketFilters({ filters, onChangeFilter }: Props) {
         />
       )}
 
-      {/* DATE PICKER iOS — dentro de Modal para evitar que quede cortado */}
+      {/* DATE PICKER */}
       {Platform.OS === 'ios' && (
         <Modal
           visible={openFrom}

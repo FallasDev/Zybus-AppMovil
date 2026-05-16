@@ -150,7 +150,7 @@ function makeStyles(theme: AppTheme) {
 
     errorText: {
       fontSize: 14,
-      color: '#dc2626',
+      color: theme.colors.error,
       textAlign: 'center',
     },
   });

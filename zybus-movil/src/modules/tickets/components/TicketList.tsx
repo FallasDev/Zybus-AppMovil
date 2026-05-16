@@ -38,7 +38,6 @@ interface TicketItemProps {
 
 interface TicketListProps {
   tickets: Ticket[];
-
   isLoading: boolean;
 
   onDetail: (
@@ -244,66 +243,49 @@ function makeStyles(theme: AppTheme) {
   return StyleSheet.create({
     listContent: {
       padding: 20,
-
       paddingTop: 24,
-
       paddingBottom: 32,
     },
 
     itemCard: {
       backgroundColor:
         theme.colors.surface,
-
-      borderRadius: 18,
-
-      padding: 16,
-
-      marginBottom: 14,
-
-      elevation: 3,
+        borderRadius: 18,
+        padding: 12,
+        marginBottom: 10,
+        elevation: 3,
     },
 
     topRow: {
       flexDirection: 'row',
-
       justifyContent: 'space-between',
-
       alignItems: 'center',
-
       marginBottom: 12,
     },
 
     badge: {
       backgroundColor:
         theme.colors.brandBlue,
-
-      borderRadius: 999,
-
-      paddingHorizontal: 12,
-
-      paddingVertical: 6,
+        borderRadius: 999,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
     },
 
     badgeText: {
       color: theme.colors.white,
-
       fontSize: 12,
-
       fontWeight: '700',
     },
 
     dateText: {
       color:
         theme.colors.textSecondary,
-
-      fontSize: 12,
+        fontSize: 12,
     },
 
     route: {
       fontSize: 18,
-
       fontWeight: '700',
-
       color:
         theme.colors.textPrimary,
 
@@ -313,7 +295,7 @@ function makeStyles(theme: AppTheme) {
     infoRow: {
       flexDirection: 'row',
 
-      marginBottom: 6,
+      marginBottom: 4,
     },
 
     infoLabel: {
@@ -339,11 +321,11 @@ function makeStyles(theme: AppTheme) {
     },
 
     active: {
-      color: '#15803d',
+      color: theme.colors.success,
     },
 
     past: {
-      color: '#dc2626',
+      color: theme.colors.error,
     },
 
     itemActions: {
@@ -357,7 +339,7 @@ function makeStyles(theme: AppTheme) {
     detailButton: {
       flex: 1,
 
-      backgroundColor: '#fcd4509f',
+      backgroundColor:  theme.colors.brandBlue,
 
       borderRadius: 10,
 
@@ -368,44 +350,21 @@ function makeStyles(theme: AppTheme) {
 
     detailButtonText: {
       color:
-        theme.colors.textPrimary,
-
-      fontWeight: '700',
+        theme.colors.white,
+        fontWeight: '700',
     },
 
-    editButton: {
-      flex: 1,
-
-      backgroundColor: '#2563eb',
-
-      borderRadius: 10,
-
-      paddingVertical: 10,
-
-      alignItems: 'center',
-    },
-
-    editButtonText: {
-      color: theme.colors.white,
-
-      fontWeight: '700',
-    },
-
+    
     cancelButton: {
       flex: 1,
-
-      backgroundColor: '#b24040e9',
-
+      backgroundColor:  theme.colors.error,
       borderRadius: 10,
-
       paddingVertical: 10,
-
       alignItems: 'center',
     },
 
     cancelButtonText: {
       color: theme.colors.white,
-
       fontWeight: '700',
     },
 
