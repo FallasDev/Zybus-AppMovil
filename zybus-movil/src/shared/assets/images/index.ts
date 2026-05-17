@@ -6,6 +6,7 @@ export const images = {
   onboarding3: require('./img3.png'),
   appIcon: require('./icon.png'),
   zybusLogo: require('./ZybusLogo.png'),
+  logoBlanco: require('./logoBlanco.png'),
   seatNormal: require('./asiento/Asiento1.png'),
   seatDisability: require('./asiento/disc_asiento.png'),
 };

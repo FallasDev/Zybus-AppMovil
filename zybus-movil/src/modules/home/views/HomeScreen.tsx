@@ -1,16 +1,25 @@
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { ActiveTripCard } from '../components/ActiveTripCard';
+import { RouteCard } from '../components/RouteCard';
+import { TrustBanner } from '../components/TrustBanner';
 import { useAppTheme } from '../../../shared/hooks/useAppTheme';
 import type { AppTheme } from '../../../shared/theme/types';
 import type { RootStackParamList } from '../../../navigation/types';
 import { images } from '../../../shared/assets/images';
-import { nearbyStops } from '../constants/home.mock';
-import { BusStopCard } from '../components/BusStopCard';
+import { popularRoutes } from '../constants/home.mock';
 import { useTripSearch } from '../../trip-search/hooks/useTripSearch';
 import { TripSearchForm } from '../../trip-search/components/TripSearchForm';
 import type { TripSearchFormData } from '../../trip-search/models/trip-search.model';
@@ -57,33 +66,26 @@ export function HomeScreen(): ReactElement {
       style={styles.container}
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
     >
-      {/* Header: logo izquierda | campana + perfil derecha */}
+      {/* Header */}
       <View style={styles.headerBar}>
         <Image source={images.zybusLogo} style={styles.logo} resizeMode="contain" />
 
         <View style={styles.headerActions}>
-          {/* Campana con badge */}
           <TouchableOpacity
-            style={styles.bellWrap}
+            style={styles.iconBtn}
             onPress={() => navigation.navigate('Notifications')}
             activeOpacity={0.75}
           >
-            <Ionicons
-              name="notifications-outline"
-              size={24}
-              color={theme.colors.textPrimary}
-            />
+            <Ionicons name="notifications-outline" size={22} color={theme.colors.textPrimary} />
             {unreadCount > 0 && (
               <View style={styles.badge}>
-                <Text style={styles.badgeText}>
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </Text>
+                <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
               </View>
             )}
           </TouchableOpacity>
 
-          {/* Círculo de perfil */}
           <View style={styles.profileCircle}>
             <Text style={styles.profileText}>DS</Text>
           </View>
@@ -91,9 +93,12 @@ export function HomeScreen(): ReactElement {
       </View>
 
       {/* Saludo */}
-      <Text style={styles.greeting}>¿A dónde vas hoy?</Text>
+      <View style={styles.greetingBlock}>
+        <Text style={styles.greeting}>¿A dónde vas hoy?</Text>
+        <Text style={styles.greetingSub}>Encontrá tu ruta ideal en segundos</Text>
+      </View>
 
-      {/* Viaje activo (mock) */}
+      {/* Viaje activo */}
       <ActiveTripCard
         tripId="t_1"
         routeName="San José – Alajuela Expreso"
@@ -113,23 +118,36 @@ export function HomeScreen(): ReactElement {
         />
       </View>
 
-      {/* Paradas cercanas */}
+      {/* Rutas Populares – slider horizontal */}
       <View style={styles.sectionRow}>
-        <Text style={styles.sectionTitle}>Paradas Cercanas</Text>
+        <Text style={styles.sectionTitle}>Rutas Populares</Text>
         <TouchableOpacity onPress={() => navigation.navigate('BusRoute')}>
-          <Text style={styles.viewAll}>Ver ruta</Text>
+          <Text style={styles.viewAll}>Ver todas</Text>
         </TouchableOpacity>
       </View>
 
-      {nearbyStops.map((stop) => (
-        <BusStopCard
-          key={stop.id}
-          name={stop.name}
-          distance={stop.distance}
-          route={stop.route}
-          onPress={() => navigation.navigate('BusRoute')}
-        />
-      ))}
+      <FlatList
+        data={popularRoutes}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <RouteCard
+            number={item.number}
+            origin={item.origin}
+            destination={item.destination}
+            duration={item.duration}
+            price={item.price}
+            frequency={item.frequency}
+            onPress={() => navigation.navigate('BusRoute')}
+          />
+        )}
+        contentContainerStyle={styles.routesSlider}
+        scrollEnabled
+      />
+
+      {/* Banner de confianza */}
+      <TrustBanner />
     </ScrollView>
   );
 }
@@ -143,15 +161,15 @@ function makeStyles(theme: AppTheme) {
     content: {
       padding: 20,
       paddingTop: 52,
-      paddingBottom: 40,
+      paddingBottom: 48,
     },
 
-    /* Header bar */
+    /* Header */
     headerBar: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: 18,
+      marginBottom: 20,
     },
     logo: {
       width: 100,
@@ -162,15 +180,18 @@ function makeStyles(theme: AppTheme) {
       alignItems: 'center',
       gap: 10,
     },
-
-    /* Campana con badge */
-    bellWrap: {
+    iconBtn: {
       width: 40,
       height: 40,
       borderRadius: 20,
       backgroundColor: theme.colors.surface,
       alignItems: 'center',
       justifyContent: 'center',
+      shadowColor: '#000',
+      shadowOpacity: 0.06,
+      shadowRadius: 6,
+      shadowOffset: { width: 0, height: 2 },
+      elevation: 2,
     },
     badge: {
       position: 'absolute',
@@ -189,8 +210,6 @@ function makeStyles(theme: AppTheme) {
       fontSize: 9,
       fontWeight: '700',
     },
-
-    /* Perfil */
     profileCircle: {
       width: 40,
       height: 40,
@@ -205,22 +224,32 @@ function makeStyles(theme: AppTheme) {
       fontWeight: '700',
     },
 
-    greeting: {
-      fontSize: 24,
-      fontWeight: '700',
-      color: theme.colors.textPrimary,
-      marginBottom: 16,
+    /* Saludo */
+    greetingBlock: {
+      marginBottom: 18,
     },
+    greeting: {
+      fontSize: 26,
+      fontWeight: '800',
+      color: theme.colors.textPrimary,
+      marginBottom: 4,
+    },
+    greetingSub: {
+      fontSize: 14,
+      color: theme.colors.textSecondary,
+    },
+
+    /* Formulario */
     searchSection: {
       backgroundColor: theme.colors.surface,
-      borderRadius: 18,
+      borderRadius: 20,
       padding: 16,
-      marginBottom: 24,
+      marginBottom: 28,
       shadowColor: theme.colors.black,
-      shadowOpacity: 0.06,
-      shadowRadius: 10,
-      shadowOffset: { width: 0, height: 2 },
-      elevation: 3,
+      shadowOpacity: 0.07,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 3 },
+      elevation: 4,
     },
     error: {
       backgroundColor: theme.colors.errorSurface,
@@ -230,11 +259,13 @@ function makeStyles(theme: AppTheme) {
       marginBottom: 8,
       fontSize: 13,
     },
+
+    /* Secciones */
     sectionRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: 12,
+      marginBottom: 14,
     },
     sectionTitle: {
       fontSize: 18,
@@ -245,6 +276,12 @@ function makeStyles(theme: AppTheme) {
       fontSize: 14,
       fontWeight: '700',
       color: theme.colors.brandBlue,
+    },
+
+    /* Slider de rutas */
+    routesSlider: {
+      paddingRight: 20,
+      paddingBottom: 6,
     },
   });
 }
